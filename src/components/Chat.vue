@@ -12,7 +12,7 @@
     </div>
 </template>
 
-<style type="text/css">
+<style type="text/css" scoped>
 .mainChat{
     height: 52em;
     display: flex;

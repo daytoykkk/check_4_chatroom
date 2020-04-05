@@ -41,7 +41,15 @@
                     v-for="(i,index) in list"
                     :key="index"
                     >
-                        <p>{{i.content}}</p>
+                        <div class="user-msg">
+                            <span
+                                :style="i.username == userId?' float:right;' : ''"
+                                :class="i.username == userId? 'right':'left'"
+                            >
+                                {{i.content}}
+                            </span>
+                        </div>
+
                     </div>
                 
                 
@@ -59,7 +67,7 @@
     </div>
 </template>
 
-<style type="text/css">
+<style type="text/css" scoped>
 .mainDialog{
     height: 52em;
     background-color: #ffffff;
@@ -76,6 +84,9 @@ p{
     font-size: 1.5em;
     margin-left: 1.5em;
     margin-top: 0.8em;
+}
+#daohang a{
+    color: #babfc4;
 }
 #daohangUl{
     position: absolute;
@@ -146,11 +157,22 @@ p{
     resize:none;
     border: none;
 }
+
+.left{
+    background:white;
+    animation: toLeft 0.5s ease both 1;
+}
+.right{
+    background: #53a8ff;
+    color: white;
+    animation: toright 0.5s ease both 1;
+}
 </style>
 
 
 <script type="text/javascript">
     import Msg from './Msg.js'
+import func from '../../vue-temp/vue-editor-bridge';
     export default{
         data() {
             return {
@@ -161,6 +183,9 @@ p{
                 list: [],
                 contentText: ""
             };
+        },
+        created(){
+            this.getUserID();
         },
         mounted:function() {
             this.initWebSocket();
@@ -182,6 +207,10 @@ p{
                 let el = this.$refs["chatShow"];
                 el.scrollTop = el.scrollHeight;
             },
+            getUserID:function(){
+                let time = new Date().getTime();
+                this.userId =time;
+            },
             sendText:function() {
                 let _this = this;
                 _this.$refs["sendMsg"].focus();
@@ -189,9 +218,18 @@ p{
                     return;
                 }
                 let params = {
-                    msg: _this.contentText
+                    username:_this.userId,
+                    msg: _this.contentText,
+                    type:1,
+                    roomid:roomid
                 };
                 _this.ws.send(JSON.stringify(params));
+                _this.list.push({
+                    username:_this.userId,
+                    msg: _this.contentText,
+                    type:1,
+                    roomid:roomid
+                })
                 _this.contentText = "";
                 setTimeout(() => {
                     _this.scrollBottom();
@@ -200,7 +238,7 @@ p{
             initWebSocket:function() {
                 let _this = this;
                 if(window.WebSocket) {
-                    let ws = new WebSocket("ws://");
+                    let ws = new WebSocket("ws://39.106.119.191");
                     _this.ws = ws;
                     ws.onopen = function(e) {
                         console.log("服务器连接成功");
@@ -213,9 +251,12 @@ p{
                     };
                     ws.onmessage = function(e) {
                         let resData = JSON.parse(e.data);
+                        console.log(resData);
                         _this.list.push({
-                            userName: resData.from_user,
-                            msg: resData.msg
+                            username: resData.username,
+                            msg: resData.msg,
+                            type:resData.type,
+                            roomid:resData.roomid
                         })
                     }
                 }
@@ -223,7 +264,7 @@ p{
             getData(){
                 let _this = this;
                 alert("aa");
-                _this.$http.get('http://39.106.119.191/api/user').then(function(res) {
+                _this.$http.get('http://39.106.119.191').then(function(res) {
                     console.log(res)
                     // 响应成功回调
                 },function(res) {

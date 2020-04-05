@@ -62,7 +62,7 @@
                         <h4 style="margin-left: 5%;"><strong>Account</strong></h4>
                         <p style="margin-left: 5%;font-size: 1.2em;color: #8a8a91;">Update your profile details.</p>
                     </div>
-                    <img src="img/account.png">
+                    <img src="img/user.png">
                 </div><hr>
                 <div id="avatar">
                     <label for="ava">Avatar</label>
@@ -91,7 +91,7 @@
     </div>
 </template>
 
-<style type="text/css">
+<style type="text/css" scoped>
 .mainProfile{
     border: solid rgb(245, 246, 250);
     height: 52em;
@@ -101,6 +101,10 @@
 #Profile{
     width: 25%;
     background-color: rgb(245,246,250);
+}
+.input-group input[type=text]{
+    background-color: #edeef6;
+    border: none;
 }
 .search{
     width: 3em;
@@ -159,7 +163,6 @@
     font-size: 1.2em;
 }
 
-
 #Settings{
     width: 75%;
     background-color: rgb(255,255,255);
@@ -178,6 +181,10 @@
     width: 75%;
     text-align: center;
     background-color: rgb(1, 113, 245);
+}
+#account img{
+    height: 2em;
+    width: 2em;
 }
 #upSet{
     width: 46%;

@@ -1,7 +1,7 @@
 <template>
     <div class="mainShare">
         <div id="close">
-                <img src="img/close.png" @click="close">
+                <img src="img/back.png" @click="close">
         </div>
 
         <div id="shareIntro">

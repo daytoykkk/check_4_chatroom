@@ -9,7 +9,7 @@
         <span class="glyphicon glyphicon-cog" style="margin-top: 7.5em;text-align:center;"></span>
     </div>
 </template>
-<style type="text/css">
+<style type="text/css" scoped>
 .tubiao{
     width: 100%;
     margin-top: 12em;

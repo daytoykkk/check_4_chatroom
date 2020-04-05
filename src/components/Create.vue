@@ -31,7 +31,7 @@
     </div>
 </template>
 
-<style type="text/css">
+<style type="text/css" scoped>
 .createGroup{
     border: solid rgb(245, 246, 250);
     height: 52em;

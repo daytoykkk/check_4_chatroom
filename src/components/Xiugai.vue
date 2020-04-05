@@ -1,7 +1,7 @@
 <template>
     <div class="mainXiugai">
         <div id="close">
-                <img src="img/close.png" @click="close">
+                <img src="img/back.png" @click="close">
         </div>
         <!--个人简介-->
         <div id="selfInt">
