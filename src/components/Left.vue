@@ -9,7 +9,11 @@
         <span class="glyphicon glyphicon-cog" style="margin-top: 7.5em;text-align:center;"></span>
     </div>
 </template>
+<<<<<<< HEAD
 <style type="text/css" scoped>
+=======
+<style type="text/css">
+>>>>>>> first commit
 .tubiao{
     width: 100%;
     margin-top: 12em;

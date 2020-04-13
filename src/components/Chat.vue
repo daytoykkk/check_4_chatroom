@@ -12,7 +12,11 @@
     </div>
 </template>
 
+<<<<<<< HEAD
 <style type="text/css" scoped>
+=======
+<style type="text/css">
+>>>>>>> first commit
 .mainChat{
     height: 52em;
     display: flex;

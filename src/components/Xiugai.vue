@@ -1,7 +1,11 @@
 <template>
     <div class="mainXiugai">
         <div id="close">
+<<<<<<< HEAD
                 <img src="img/back.png" @click="close">
+=======
+                <img src="img/close.png" @click="close">
+>>>>>>> first commit
         </div>
         <!--个人简介-->
         <div id="selfInt">

@@ -62,7 +62,11 @@
                         <h4 style="margin-left: 5%;"><strong>Account</strong></h4>
                         <p style="margin-left: 5%;font-size: 1.2em;color: #8a8a91;">Update your profile details.</p>
                     </div>
+<<<<<<< HEAD
                     <img src="img/user.png">
+=======
+                    <img src="img/account.png">
+>>>>>>> first commit
                 </div><hr>
                 <div id="avatar">
                     <label for="ava">Avatar</label>
@@ -91,7 +95,11 @@
     </div>
 </template>
 
+<<<<<<< HEAD
 <style type="text/css" scoped>
+=======
+<style type="text/css">
+>>>>>>> first commit
 .mainProfile{
     border: solid rgb(245, 246, 250);
     height: 52em;
@@ -102,10 +110,13 @@
     width: 25%;
     background-color: rgb(245,246,250);
 }
+<<<<<<< HEAD
 .input-group input[type=text]{
     background-color: #edeef6;
     border: none;
 }
+=======
+>>>>>>> first commit
 .search{
     width: 3em;
     border: none;
@@ -163,6 +174,10 @@
     font-size: 1.2em;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> first commit
 #Settings{
     width: 75%;
     background-color: rgb(255,255,255);
@@ -182,10 +197,13 @@
     text-align: center;
     background-color: rgb(1, 113, 245);
 }
+<<<<<<< HEAD
 #account img{
     height: 2em;
     width: 2em;
 }
+=======
+>>>>>>> first commit
 #upSet{
     width: 46%;
     height: 85%;
