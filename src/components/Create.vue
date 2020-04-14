@@ -31,11 +31,7 @@
     </div>
 </template>
 
-<<<<<<< HEAD
 <style type="text/css" scoped>
-=======
-<style type="text/css">
->>>>>>> first commit
 .createGroup{
     border: solid rgb(245, 246, 250);
     height: 52em;

@@ -172,7 +172,6 @@ p{
 
 <script type="text/javascript">
     import Msg from './Msg.js'
-import func from '../../vue-temp/vue-editor-bridge';
     export default{
         data() {
             return {

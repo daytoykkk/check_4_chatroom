@@ -30,14 +30,14 @@
                 <div class="proTwoInf">
                     <div class="proTwoSpan">
                         <p>Phone</p>
-                        <span>+39 02 8721 43 19</span>
+                        <span>{{phone}}</span>
                     </div>
                     <div class="proTwoImg"><img src="img/yuyin.png"></div>
                 </div><hr>
                 <div class="proTwoInf">
                     <div class="proTwoSpan">
                         <p>Email</p>
-                        <span>anna@gmail.com</span>
+                        <span>{{email}}</span>
                     </div>
                     <div class="proTwoImg"><img src="img/youjian.png"></div>
                 </div><hr>
@@ -62,11 +62,7 @@
                         <h4 style="margin-left: 5%;"><strong>Account</strong></h4>
                         <p style="margin-left: 5%;font-size: 1.2em;color: #8a8a91;">Update your profile details.</p>
                     </div>
-<<<<<<< HEAD
                     <img src="img/user.png">
-=======
-                    <img src="img/account.png">
->>>>>>> first commit
                 </div><hr>
                 <div id="avatar">
                     <label for="ava">Avatar</label>
@@ -78,15 +74,15 @@
                 </div>
                 <div class="proSet">
                     <label for="">Name</label>
-                    <input type="text" id="name" class="form-control" placeholder="Type your name">
+                    <input type="text" id="name" :value="name" class="form-control" placeholder="Type your name">
                 </div><br>
                 <div class="proSet">
                     <label for="">Phone</label>
-                    <input type="text" id="phone" class="form-control" placeholder="(123) 456-7890">
+                    <input type="text" id="phone" :value="phone" class="form-control" placeholder="(123) 456-7890">
                 </div><br>
                 <div class="proSet">
                     <label for="">Email</label>
-                    <input type="text" id="email" class="form-control" placeholder="you@yoursite.com">
+                    <input type="text" id="email" :value="email" class="form-control" placeholder="you@yoursite.com">
                 </div>
                 <br>
                 <center><button type="button" class="btn btn-primary btn-lg ">Save Preferences</button></center>
@@ -95,11 +91,20 @@
     </div>
 </template>
 
-<<<<<<< HEAD
+<script>
+export default {
+    data(){
+        return {
+            name:"daytoy",
+            phone:"151",
+            email:"hhh",
+
+        }
+    }
+}
+</script>
+
 <style type="text/css" scoped>
-=======
-<style type="text/css">
->>>>>>> first commit
 .mainProfile{
     border: solid rgb(245, 246, 250);
     height: 52em;
@@ -110,13 +115,10 @@
     width: 25%;
     background-color: rgb(245,246,250);
 }
-<<<<<<< HEAD
 .input-group input[type=text]{
     background-color: #edeef6;
     border: none;
 }
-=======
->>>>>>> first commit
 .search{
     width: 3em;
     border: none;
@@ -174,10 +176,6 @@
     font-size: 1.2em;
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> first commit
 #Settings{
     width: 75%;
     background-color: rgb(255,255,255);
@@ -197,13 +195,10 @@
     text-align: center;
     background-color: rgb(1, 113, 245);
 }
-<<<<<<< HEAD
 #account img{
     height: 2em;
     width: 2em;
 }
-=======
->>>>>>> first commit
 #upSet{
     width: 46%;
     height: 85%;

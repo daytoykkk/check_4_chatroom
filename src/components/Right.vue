@@ -20,7 +20,7 @@
     export default{
         data(){
             return {
-                kk:1
+                kk:3
             }
         },
         components:{
