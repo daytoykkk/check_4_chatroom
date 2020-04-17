@@ -73,6 +73,35 @@
       </div>
     </div>
 
+    <!--首次登陆-->
+    <button style="display:none;" id="chuxian" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+	开始演示模态框
+</button>
+    <div
+      class="modal fade"
+      id="myModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="myModalLabel"
+      aria-hidden="true"
+      data-backdrop="false"
+      data-keyboard="false"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">注册用户</h4>
+          </div>
+          <input type="text" class="form-control" style="height:3em;" v-model="name" placeholder="请输入用户名进入聊天室" />
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" @click="zhuce()">提交更改</button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal -->
+    </div>
+
     <!--设置-->
     <div id="Settings">
       <h4 style="margin-left: 5%;">
@@ -152,7 +181,11 @@
         </div>
         <br />
         <center>
-          <button type="button" @click="saveMsg()" class="btn btn-primary btn-lg">Save Preferences</button>
+          <button
+            type="button"
+            @click="saveMsg();imgSubmit()"
+            class="btn btn-primary btn-lg"
+          >Save Preferences</button>
         </center>
       </div>
     </div>
@@ -174,9 +207,8 @@ export default {
     };
   },
   mounted() {
-    this.loadMsg();
+    this.isRandT();
     this.yulan();
-    this.getToken();
   },
   created() {
     this.currentTime();
@@ -186,35 +218,50 @@ export default {
       let MSG = { name: this.name, phone: this.phone, email: this.email };
       console.log(MSG.name);
       localStorage.setItem("msg", JSON.stringify(MSG));
+      let _token = localStorage.getItem("token");
       this.$axios
-        .post("http://39.106.119.191/api/user/",
+        .patch(
+          "http://39.106.119.191/api/user/",
           qs.stringify({
-            name: this.name,
+            username: this.name,
             phone: this.phone,
-            email: this.email,
-            action:"quicklogin"
+            token: _token,
+            action: "quicklogin"
           })
         )
         .then(rsp => {
-          console.log(rsp);
+          console.log(rsp.data);
+          let datatoken = rsp.data.token;
+          let id = rsp.data.id;
+          localStorage.setItem("token", datatoken);
+          localStorage.setItem("id", id);
         })
         .catch(error => {
           console.log(error);
         });
     },
-    getToken(){
-        let _this = this;
-      console.log("aa");
-      _this.$axios.get("http://39.106.119.191/api/user/")
-      .then(rsp=>{
-        let datatoken = rsp.data.token;
-        let roomid=rsp.data.roomid;
-        localStorage.setItem("token",datatoken);
-        localStorage.setItem("roomid",roomid);
-      }).catch(error=>{
-        console.log(error)
-      }
-      );
+    zhuce() {
+      this.isFirst = false;
+      let MSG = { name: this.name, phone: this.phone, email: this.email };
+      console.log(MSG.name);
+      localStorage.setItem("msg", JSON.stringify(MSG));
+      this.$axios
+        .post(
+          "http://39.106.119.191/api/user/",
+          qs.stringify({
+            username: this.name
+          })
+        )
+        .then(rsp => {
+          console.log(rsp.data);
+          let datatoken = rsp.data.token;
+          let id = rsp.data.id;
+          localStorage.setItem("token", datatoken);
+          localStorage.setItem("id", id);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     loadMsg() {
       let MSG = JSON.parse(localStorage.getItem("msg"));
@@ -281,6 +328,16 @@ export default {
             offset: 160
           });
         });
+    },
+    isRandT() {
+      if (
+        typeof localStorage.token == "undefined" ||
+        typeof localStorage.id == "undefined"
+      ) {
+        document.getElementById("chuxian").click();
+      } else {
+        this.loadMsg();
+      }
     }
   }
 };
