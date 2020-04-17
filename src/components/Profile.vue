@@ -176,6 +176,7 @@ export default {
   mounted() {
     this.loadMsg();
     this.yulan();
+    this.getToken();
   },
   created() {
     this.currentTime();
@@ -186,10 +187,12 @@ export default {
       console.log(MSG.name);
       localStorage.setItem("msg", JSON.stringify(MSG));
       this.$axios
-        .post(
-          "",
+        .post("http://39.106.119.191/api/user/",
           qs.stringify({
-            MSG
+            name: this.name,
+            phone: this.phone,
+            email: this.email,
+            action:"quicklogin"
           })
         )
         .then(rsp => {
@@ -198,7 +201,20 @@ export default {
         .catch(error => {
           console.log(error);
         });
-      alert("保存成功！");
+    },
+    getToken(){
+        let _this = this;
+      console.log("aa");
+      _this.$axios.get("http://39.106.119.191/api/user/")
+      .then(rsp=>{
+        let datatoken = rsp.data.token;
+        let roomid=rsp.data.roomid;
+        localStorage.setItem("token",datatoken);
+        localStorage.setItem("roomid",roomid);
+      }).catch(error=>{
+        console.log(error)
+      }
+      );
     },
     loadMsg() {
       let MSG = JSON.parse(localStorage.getItem("msg"));

@@ -197,14 +197,17 @@ export default {
       count: 0,
       userId: null,
       list: [],
-      contentText: ""
+      contentText: "",
+      roomid:"",
+      token:""
     };
   },
   created() {
     this.getUserID();
   },
   mounted: function() {
-    //this.initWebSocket();
+    this.getRandT();
+    this.initWebSocket();
   },
   methods: {
     show1: function() {
@@ -254,7 +257,7 @@ export default {
     initWebSocket: function() {
       let _this = this;
       if (window.WebSocket) {
-        let ws = new WebSocket("ws://");
+        let ws = new WebSocket("ws://http://39.106.119.191/api/ws"+"?token="+_this.token);
         _this.ws = ws;
         ws.onopen = function(e) {
           console.log("服务器连接成功");
@@ -280,16 +283,19 @@ export default {
     getData() {
       let _this = this;
       alert("aa");
-      _this.$http.get("http://39.106.119.191").then(
-        function(res) {
-          console.log(res);
-          // 响应成功回调
-        },
-        function(res) {
-          console.log(res);
-          // 响应错误回调
-        }
+      _this.$axios.get("http://39.106.119.191/api/user/")
+      .then(rsp=>{
+        console.log(rsp)
+      }).catch(error=>{
+        console.log(error)
+      }
+        
       );
+    },
+    getRandT(){
+      let _this=this;
+      _this.roomid=localStorage.getItem("roomid");
+      _this.token=localStorage.getItem("token");
     }
   }
 };
