@@ -74,6 +74,7 @@
     </div>
 
     <!--首次登陆-->
+    
     <button
       style="display:none;"
       id="chuxian"
@@ -100,6 +101,8 @@
           <el-input id="input-box" @blur="isProLen()" v-model="name" placeholder="请输入用户名进入聊天室"></el-input>
           <span v-if="isLen" style="color:red"><i class="el-icon-warning-outline"></i> 长度在2~10之间</span>
           <span v-if="isError" style="color:red"><i class="el-icon-warning-outline"></i> 昵称已存在</span>
+          <button id="close-btn" style="display:none;"  type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+          
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" @click="zhuce()">提交更改</button>
           </div>
@@ -212,12 +215,14 @@ export default {
       imageSave: "",
       isShow: true,
       isError:false,
-      isLen:false
+      isLen:false,
+      isFirst:true
     }
     
   },
   mounted() {
     this.isRandT();
+    this.close();
     this.yulan();
   },
   created() {
@@ -251,18 +256,20 @@ export default {
     },
     zhuce() {
       let _this=this;
-      this.isFirst = false;
       let MSG = { name: this.name, phone: this.phone, email: this.email };
       console.log(MSG.name);
-      localStorage.setItem("msg", JSON.stringify(MSG));
       this.$axios
         .post(
           "http://39.106.119.191/api/user/",{username:this.name,action:"quicklogin"}
         )
         .then(rsp => {
-          console.log(rsp.data);
+           _this.isError=false;
+           this.isFirst = false;
+           let usericons = "http://39.106.119.191/uploads/usericons/";
+           _this.imageSave =usericons + res.data.icon;
           let datatoken = rsp.data.token;
           let id = rsp.data.id;
+          localStorage.setItem("msg", JSON.stringify(MSG));
           localStorage.setItem("token", datatoken);
           localStorage.setItem("id", id);
         })
@@ -314,13 +321,14 @@ export default {
     imgSubmit() {
       let _this = this;
       let x = document.getElementById("saveImage").files[0];
-      let params = new FormData();
-      params.append("file", x, x.name);
+      let icon = new FormData();
+      icon.append("file", x, x.name);
       let config = { headers: { "Content-Type": "multipart/form-data" } };
       this.$axios
-        .post(api.personHeadImg, params, config)
+        .patch("http://39.106.119.191/api/user/", icon, config)
         .then(function(res) {
-          _this.imageSave = res.data.lujing;
+          let usericons = "http://39.106.119.191/uploads/usericons/";
+          _this.imageSave =  usericons + res.data.icon;
           _this.$notify({
             type: "success",
             message: "上传成功!",
@@ -352,6 +360,11 @@ export default {
         this.name="";
       }else{
         this.isLen=false;
+      }
+    },
+    close(){
+      if(this.isFirst==false){
+        document.getElementById("close-btn").click();
       }
     }
   }
