@@ -74,9 +74,13 @@
     </div>
 
     <!--首次登陆-->
-    <button style="display:none;" id="chuxian" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-	开始演示模态框
-</button>
+    <button
+      style="display:none;"
+      id="chuxian"
+      class="btn btn-primary btn-lg"
+      data-toggle="modal"
+      data-target="#myModal"
+    >开始演示模态框</button>
     <div
       class="modal fade"
       id="myModal"
@@ -92,7 +96,10 @@
           <div class="modal-header">
             <h4 class="modal-title" id="myModalLabel">注册用户</h4>
           </div>
-          <input type="text" class="form-control" style="height:3em;" v-model="name" placeholder="请输入用户名进入聊天室" />
+          
+          <el-input id="input-box" @blur="isProLen()" v-model="name" placeholder="请输入用户名进入聊天室"></el-input>
+          <span v-if="isLen" style="color:red"><i class="el-icon-warning-outline"></i> 长度在2~10之间</span>
+          <span v-if="isError" style="color:red"><i class="el-icon-warning-outline"></i> 昵称已存在</span>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" @click="zhuce()">提交更改</button>
           </div>
@@ -203,8 +210,11 @@ export default {
       email: "",
       time: "",
       imageSave: "",
-      isShow: true
-    };
+      isShow: true,
+      isError:false,
+      isLen:false
+    }
+    
   },
   mounted() {
     this.isRandT();
@@ -225,8 +235,7 @@ export default {
           qs.stringify({
             username: this.name,
             phone: this.phone,
-            token: _token,
-            action: "quicklogin"
+            token: _token
           })
         )
         .then(rsp => {
@@ -241,16 +250,14 @@ export default {
         });
     },
     zhuce() {
+      let _this=this;
       this.isFirst = false;
       let MSG = { name: this.name, phone: this.phone, email: this.email };
       console.log(MSG.name);
       localStorage.setItem("msg", JSON.stringify(MSG));
       this.$axios
         .post(
-          "http://39.106.119.191/api/user/",
-          qs.stringify({
-            username: this.name
-          })
+          "http://39.106.119.191/api/user/",{username:this.name,action:"quicklogin"}
         )
         .then(rsp => {
           console.log(rsp.data);
@@ -260,7 +267,7 @@ export default {
           localStorage.setItem("id", id);
         })
         .catch(error => {
-          console.log(error);
+          this.isError=true;
         });
     },
     loadMsg() {
@@ -337,6 +344,14 @@ export default {
         document.getElementById("chuxian").click();
       } else {
         this.loadMsg();
+      }
+    },
+    isProLen(){
+      if(this.name.length<2||this.name.length>10){
+        this.isLen=true;
+        this.name="";
+      }else{
+        this.isLen=false;
       }
     }
   }
