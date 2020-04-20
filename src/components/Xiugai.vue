@@ -13,11 +13,12 @@
       </center>
       <center>
         <h4>
-          <b>{{groupname}}</b>
+          <b>{{groupName}}</b>
         </h4>
       </center>
       <center>
-        <p style="color: rgb(187,192,198);font-size: 1.2em;">这是一段个人简介</p>
+        <p style="color: rgb(187,192,198);font-size: 1.2em;width:90%; word-wrap: break-word;
+  word-break: break-all;">{{des}}</p>
       </center>
     </div>
     <!--设置-->
@@ -25,27 +26,50 @@
       <br />
       <div id="setPhoto">
         <p>Photo</p>
-        <div id="setphoto">
-          <center>
-            <img src="img/avatar.png" width="50px" height="42px" />
-          </center>
-          <center>
-            <p style="color: rgb(144, 144, 151);">You can upload jpg,gif or png files.</p>
-          </center>
-          <center>
-            <p style="color: rgb(144, 144, 151);">Max file size 3mb.</p>
-          </center>
+        <div id="photo">
+      <input type="file" style="display:none;" id="saveImage" name="myphoto" />
+      <!--预览框-->
+      <center>
+        <div class="viewPhoto" v-if="!isShow">
+          <img
+            :src="imageSave"
+            id="portrait"
+            @click="moni()"
+            style="cursor:pointer;width:6.5em;height:6.5em;"
+          />
         </div>
+      </center>
+      <div v-if="isShow">
+        <center>
+          <img
+            title="点我上传头像"
+            src="img/avatar.png"
+            alt="150*150"
+            style="cursor:pointer;width:3.5em;height:3em;"
+            @click="moni()"
+          />
+        </center>
+        <center>
+          <p style="color: rgb(144, 144, 151);">You can upload jpg,gif or png files.</p>
+        </center>
+        <center>
+          <p style="color: rgb(144, 144, 151);">Max file size 3mb.</p>
+        </center>
+      </div>
+    </div>
       </div>
 
       <div id="setName">
-        <p>Name</p>
+        <p>Name <span v-if="isMaxName" style="color:red;">
+        <i class="el-icon-warning-outline">长度范围为2-10</i>
+      </span></p>
         <input
           type="text"
           v-model="groupName"
           class="form-control"
           id="name"
           placeholder="Group name"
+          @input="nameMax($event.target,10)"
         />
       </div>
 
@@ -61,16 +85,19 @@
       </div>
 
       <div id="setDes" style="margin-top:1em;">
-        <p>Description</p>
+        <p>Description <span v-if="isMaxDes" style="color:red;">
+        <i class="el-icon-warning-outline">50字以内</i>
+      </span></p>
         <textarea
           v-model="des"
           class="form-control"
           rows="2"
           id="des"
           placeholder="Group Description"
+           @input="desMax($event.target,50)"
         ></textarea>
       </div>
-      <button type="button" @click="saveMsg()" class="btn btn-primary btn-lg btn-block">确认保存</button>
+      <button type="button" @click="saveMsg();imgSubmit();" class="btn btn-primary btn-lg btn-block">确认保存</button>
     </div>
   </div>
 </template>
@@ -79,6 +106,13 @@
 .mainXiugai {
   height: 52em;
   background-color: #ffffff;
+}
+#photo {
+  width: 90%;
+  height: 6.8em;
+  background-color: rgb(237, 238, 246);
+  border-radius: 3%;
+  margin-left: 5%;
 }
 #selfInt {
   height: 30%;
@@ -124,37 +158,39 @@ import Msg from "./Msg.js";
 export default {
   data() {
     return {
-      groupname: "",
+      groupName: "",
       topic: "",
-      des: ""
+      des: "",
+      imageSave: "",
+      isMaxName: false,
+      isMaxDes: false,
+      isShow: true
     };
   },
   mounted() {
+    this.yulan();
     this.loadMsg();
   },
   methods: {
     saveMsg() {
-      let group = {
-        groupName: this.groupName,
-        topic: this.topic,
-        des: this.des
-      };
-      console.log(group.topic);
-      localStorage.setItem("group", JSON.stringify(group));
+      let _this = this;
+      let Group = { name: this.groupName, detail: this.des };
+      console.log(Group.groupName);
+      let token1 = localStorage.getItem("token");
+      let roomid1=localStorage.getItem("roomid");
       this.$axios
-        .post(
-          "",
-          qs.stringify({
-            group
-          })
-        )
-        .then(rsp => {
-          console.log(rsp);
+        .patch("http://39.106.119.191/api/room/", {
+          name: this.groupName,
+          detail: this.des,
+          token: token1,
+          roomid:roomid1
         })
-        .catch(error => {
-          console.log(error);
-        });
-      alert("保存成功！");
+        .then(rsp => {
+          let roomid = rsp.data.roomid;
+          localStorage.setItem("group", JSON.stringify(Group));
+          localStorage.setItem("roomid", roomid);
+        })
+        .catch(error => {});
     },
     loadMsg() {
       let group = JSON.parse(localStorage.getItem("group"));
@@ -164,6 +200,79 @@ export default {
     },
     close() {
       Msg.$emit("obj", "0");
+    },
+     nameMax(str, len) {
+      let temp = 0;
+      for (let i = 0; i < str.value.length; i++) {
+        if (/[\u4e00-\u9fa5]/.test(str.value[i])) {
+          temp += 2;
+        } else {
+          temp++;
+        }
+        if (temp > len || temp < 2) {
+          this.isMaxName = true;
+        } else {
+          this.isMaxName = false;
+        }
+      }
+    },
+    desMax(str, len) {
+      let temp = 0;
+      for (let i = 0; i < str.value.length; i++) {
+        if (/[\u4e00-\u9fa5]/.test(str.value[i])) {
+          temp += 2;
+        } else {
+          temp++;
+        }
+        if (temp > len) {
+          this.isMaxDes = true;
+        } else {
+          this.isMaxDes = false;
+        }
+      }
+    },
+    moni() {
+      document.getElementById("saveImage").click();
+    },
+    yulan() {
+      let _this = this;
+      document.getElementById("saveImage").onchange = function() {
+        let imgFile = this.files[0];
+        if (imgFile) {
+          _this.isShow = false;
+        }
+        let fr = new FileReader();
+        fr.onload = function() {
+          document.getElementById("portrait").src = fr.result;
+        };
+        fr.readAsDataURL(imgFile);
+      };
+    },
+    imgSubmit() {
+      let _this = this;
+      let x = document.getElementById("saveImage").files[0];
+      let icon = new FormData();
+      icon.append("file", x, x.name);
+      let config = { headers: { "Content-Type": "multipart/form-data" } };
+      this.$axios
+        .patch("http://39.106.119.191/api/room/", icon, config)
+        .then(function(res) {
+          let roomicon = "http://39.106.119.191/uploads/rooms/";
+          _this.imageSave = roomicon + res.data.icon;
+          _this.$notify({
+            type: "success",
+            message: "上传成功!",
+            offset: 160
+          });
+        })
+        .catch(function(error) {
+          console.log(error);
+          _this.$notify({
+            type: "warning",
+            message: "上传失败!",
+            offset: 160
+          });
+        });
     }
   }
 };

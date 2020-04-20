@@ -12,15 +12,20 @@
     <br />
     <label for="photo" id="photoLab">Photo</label>
     <div id="photo">
-       <input type="file" style="display:none;" id="saveImage" name="myphoto" />
+      <input type="file" style="display:none;" id="saveImage" name="myphoto" />
       <!--预览框-->
       <center>
         <div class="viewPhoto" v-if="!isShow">
-          <img :src="imageSave" id="portrait" @click="moni()" style="width:9em;height:9em;cursor:pointer;" />
+          <img
+            :src="imageSave"
+            id="portrait"
+            @click="moni()"
+            style="width:9em;height:9em;cursor:pointer;"
+          />
         </div>
       </center>
       <div v-if="isShow">
-        <center> 
+        <center>
           <img
             title="点我上传头像"
             src="img/avatar.png"
@@ -109,27 +114,23 @@ export default {
   },
   methods: {
     createGroup() {
-      let group = {
-        groupName: this.groupName,
-        topic: this.topic,
-        des: this.des
-      };
-
-      localStorage.setItem("group", JSON.stringify(group));
+      let _this = this;
+      let Group = { name: this.groupName, detail: this.des };
+      console.log(Group.groupName);
+      let token1 = localStorage.getItem("token");
       this.$axios
-        .post(
-          "",
-          qs.stringify({
-            group
-          })
-        )
-        .then(rsp => {
-          console.log(rsp);
+        .post("http://39.106.119.191/api/room/", {
+          name: this.groupName,
+          detail: this.des,
+          token: token1,
+          action: "register"
         })
-        .catch(error => {
-          console.log(error);
-        });
-      alert("保存成功！");
+        .then(rsp => {
+          let roomid = rsp.data.roomid;
+          localStorage.setItem("group", JSON.stringify(Group));
+          localStorage.setItem("roomid", roomid);
+        })
+        .catch(error => {});
     },
     nameMax(str, len) {
       let temp = 0;
@@ -185,15 +186,14 @@ export default {
       icon.append("file", x, x.name);
       let config = { headers: { "Content-Type": "multipart/form-data" } };
       this.$axios
-        .patch("http://39.106.119.191/api/user/", icon, config)
+        .post("http://39.106.119.191/api/room/", icon, config)
         .then(function(res) {
-          let usericons = "http://39.106.119.191/uploads/usericons/";
-          _this.imageSave = usericons + res.data.icon;
-          _this.$notify({
-            type: "success",
-            message: "上传成功!",
-            offset: 160
-          });
+          let roomicon = "http://39.106.119.191/uploads/rooms/";
+          _this.imageSave = roomicon + res.data.icon;
+         let url=res.data.url;
+         let host_id=res.data.host_id;
+         localStorage.setItem("url",url);
+         localStorage.setItem("host_id",host_id);
         })
         .catch(function(error) {
           console.log(error);
