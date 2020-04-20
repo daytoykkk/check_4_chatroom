@@ -13,7 +13,7 @@
                     <h3>Documentation</h3>
                     <a href="#">
                         Quick setup and build tools.
-                        <span class="glyphicon glyphicon-link" style="font-size:1em;color: rgb(193, 197, 203);"></span>
+                        <img src="../assets/link.png" style="width:1em;height:1em;">
                     </a>
                 </div>
             </div>

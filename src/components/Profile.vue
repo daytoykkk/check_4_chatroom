@@ -136,16 +136,17 @@
         <div id="avatar">
           <label for="ava">Avatar</label>
           <div id="ava">
+            <input type="file" id="saveImage" name="myphoto"/>
             <!--预览框-->
             <center>
               <div class="viewPhoto" v-if="!isShow">
-                <img :src="imageSave" id="portrait" style="width:9em;height:9em" />
+                <img :src="imageSave" id="portrait" style="width:9em;height:9em;cursor:pointer;" @click="moni()" />
               </div>
             </center>
             <div id="tishi" v-if="isShow">
               <center>
                 <img class="moni" title="点我上传头像" src="img/avatar.png" alt="150*150" @click="moni()" />
-                <input type="file" id="saveImage" name="myphoto" />
+                
               </center>
               <center>
                 <p style="color: rgb(144, 144, 151);">You can upload jpg,gif or png files.</p>
@@ -216,7 +217,7 @@ export default {
       isShow: true,
       isError:false,
       isLen:false,
-      isFirst:true
+      isFirst:false
     }
     
   },
@@ -263,7 +264,7 @@ export default {
           "http://39.106.119.191/api/user/",{username:this.name,action:"quicklogin"}
         )
         .then(rsp => {
-           _this.isError=false;
+           this.isError=false;
            this.isFirst = false;
            let usericons = "http://39.106.119.191/uploads/usericons/";
            _this.imageSave =usericons + res.data.icon;

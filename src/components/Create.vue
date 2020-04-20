@@ -12,25 +12,45 @@
     <br />
     <label for="photo" id="photoLab">Photo</label>
     <div id="photo">
+       <input type="file" style="display:none;" id="saveImage" name="myphoto" />
+      <!--预览框-->
       <center>
-        <img src="img/avatar.png" alt="150*150" />
+        <div class="viewPhoto" v-if="!isShow">
+          <img :src="imageSave" id="portrait" @click="moni()" style="width:9em;height:9em;cursor:pointer;" />
+        </div>
       </center>
-      <center>
-        <p style="color: rgb(144, 144, 151);">You can upload jpg,gif or png files.</p>
-      </center>
-      <center>
-        <p style="color: rgb(144, 144, 151);">Max file size 3mb.</p>
-      </center>
+      <div v-if="isShow">
+        <center> 
+          <img
+            title="点我上传头像"
+            src="img/avatar.png"
+            alt="150*150"
+            style="cursor:pointer;"
+            @click="moni()"
+          />
+        </center>
+        <center>
+          <p style="color: rgb(144, 144, 151);">You can upload jpg,gif or png files.</p>
+        </center>
+        <center>
+          <p style="color: rgb(144, 144, 151);">Max file size 3mb.</p>
+        </center>
+      </div>
     </div>
+
     <br />
     <div class="settingAccount">
       <label for="cgName">Name</label>
+      <span v-if="isMaxName" style="color:red;">
+        <i class="el-icon-warning-outline">长度范围为2-10</i>
+      </span>
       <input
         type="text"
         v-model="groupName"
         id="cgName"
         class="form-control"
         placeholder="Group Name"
+        @input="nameMax($event.target,10)"
       />
     </div>
     <br />
@@ -47,18 +67,26 @@
     <br />
     <div class="settingAccount">
       <label for="cgDes">Description</label>
+      <span v-if="isMaxDes" style="color:red;">
+        <i class="el-icon-warning-outline">50字以内</i>
+      </span>
       <input
         type="text"
         v-model="des"
         id="cgDes"
         class="form-control"
         placeholder="Group Description"
+        @input="desMax($event.target,50)"
       />
     </div>
     <br />
     <br />
     <center>
-      <button @click="saveAll()" type="button" class="btn btn-primary btn-lg">Create group</button>
+      <button
+        @click="createGroup();imgSubmit()"
+        type="button"
+        class="btn btn-primary btn-lg"
+      >Create group</button>
     </center>
   </div>
 </template>
@@ -69,20 +97,24 @@ export default {
     return {
       groupName: "",
       topic: "",
-      des: ""
+      des: "",
+      imageSave: "",
+      isMaxName: false,
+      isMaxDes: false,
+      isShow: true
     };
   },
   mounted() {
-    this.loadGroup();
+    this.yulan();
   },
   methods: {
-    saveAll() {
+    createGroup() {
       let group = {
         groupName: this.groupName,
         topic: this.topic,
         des: this.des
       };
-      console.log(group.topic);
+
       localStorage.setItem("group", JSON.stringify(group));
       this.$axios
         .post(
@@ -99,11 +131,78 @@ export default {
         });
       alert("保存成功！");
     },
-    loadGroup() {
-      let group = JSON.parse(localStorage.getItem("group"));
-      this.groupName = group.groupName;
-      this.topic = group.topic;
-      this.des = group.topic;
+    nameMax(str, len) {
+      let temp = 0;
+      for (let i = 0; i < str.value.length; i++) {
+        if (/[\u4e00-\u9fa5]/.test(str.value[i])) {
+          temp += 2;
+        } else {
+          temp++;
+        }
+        if (temp > len || temp < 2) {
+          this.isMaxName = true;
+        } else {
+          this.isMaxName = false;
+        }
+      }
+    },
+    desMax(str, len) {
+      let temp = 0;
+      for (let i = 0; i < str.value.length; i++) {
+        if (/[\u4e00-\u9fa5]/.test(str.value[i])) {
+          temp += 2;
+        } else {
+          temp++;
+        }
+        if (temp > len) {
+          this.isMaxDes = true;
+        } else {
+          this.isMaxDes = false;
+        }
+      }
+    },
+    moni() {
+      document.getElementById("saveImage").click();
+    },
+    yulan() {
+      let _this = this;
+      document.getElementById("saveImage").onchange = function() {
+        let imgFile = this.files[0];
+        if (imgFile) {
+          _this.isShow = false;
+        }
+        let fr = new FileReader();
+        fr.onload = function() {
+          document.getElementById("portrait").src = fr.result;
+        };
+        fr.readAsDataURL(imgFile);
+      };
+    },
+    imgSubmit() {
+      let _this = this;
+      let x = document.getElementById("saveImage").files[0];
+      let icon = new FormData();
+      icon.append("file", x, x.name);
+      let config = { headers: { "Content-Type": "multipart/form-data" } };
+      this.$axios
+        .patch("http://39.106.119.191/api/user/", icon, config)
+        .then(function(res) {
+          let usericons = "http://39.106.119.191/uploads/usericons/";
+          _this.imageSave = usericons + res.data.icon;
+          _this.$notify({
+            type: "success",
+            message: "上传成功!",
+            offset: 160
+          });
+        })
+        .catch(function(error) {
+          console.log(error);
+          _this.$notify({
+            type: "warning",
+            message: "上传失败!",
+            offset: 160
+          });
+        });
     }
   }
 };
@@ -135,6 +234,7 @@ h3 {
 }
 #photo {
   width: 50%;
+  height: 11em;
   background-color: rgb(237, 238, 246);
   border-radius: 3%;
   margin-left: 25%;

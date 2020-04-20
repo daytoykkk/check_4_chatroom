@@ -39,8 +39,8 @@
       <!--搜索框-->
       <div v-if="isShow==1" style="width:80%;margin-left:10%;margin-top:2em;">
         <div class="input-group" style="display: flex;">
-          <input type="text" class="form-control" placeholder="Search for message or users" />
-          <input type="button" class="search" />
+          <input style="width:80%;" type="text" class="form-control" placeholder="Search for message or users" />
+          <input style="width:4%;" type="button" class="search" />
         </div>
       </div>
 
@@ -71,7 +71,7 @@
         <span class="fa fa-smile-o"></span>
       </a>
       <a href="#" @click="getData()">
-        <span class="fa fa-paperclip"></span>
+        <i class="el-icon-paperclip"></i>
       </a>
       <div id="senda" @click="sendText()">
         <center>
@@ -121,6 +121,21 @@ p {
 #daohangUl span {
   font-size: 1em;
   margin-left: 4em;
+}
+.input-group input[type="text"] {
+  background-color: #edeef6;
+  border: none;
+}
+.search {
+  width: 3em;
+  border: none;
+  border-radius: 5%;
+  background: url("/img/search.png") no-repeat scroll center transparent;
+}
+#proOne {
+  height: 25%;
+  background-color: rgb(255, 255, 255);
+  border-radius: 3%;
 }
 #daoSelf {
   width: 85%;
