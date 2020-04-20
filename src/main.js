@@ -6,6 +6,7 @@ import router from './router'
 import Axios from 'axios'
 import qs from 'qs'
 
+
 Vue.use(ElementUI);
 
 Vue.prototype.qs=qs;
