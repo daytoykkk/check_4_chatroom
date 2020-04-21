@@ -1,6 +1,6 @@
 <template>
   <i style="text-align: center;border-right: 2px solid #f5f6fa;">
-    <img src="img/logo.png" style="margin-top: 5%;" />
+    <center><img src="img/logo.png" style="margin-top: 5%;" /></center>
     <div class="tubiao">
       <i id="one" class="el-icon-edit-outline" :class="{active:isone}" @click="menu1"></i>
       <br />

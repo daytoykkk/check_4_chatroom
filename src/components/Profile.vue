@@ -17,7 +17,7 @@
         <br />
         <center>
           <div id="touxiang">
-            <img src="img/logo.png" />
+            <img id="pro-tx" src="img/logo.png" />
           </div>
         </center>
         <center>
@@ -74,7 +74,7 @@
     </div>
 
     <!--首次登陆-->
-    
+
     <button
       style="display:none;"
       id="chuxian"
@@ -97,12 +97,22 @@
           <div class="modal-header">
             <h4 class="modal-title" id="myModalLabel">注册用户</h4>
           </div>
-          
+
           <el-input id="input-box" @blur="isProLen()" v-model="name" placeholder="请输入用户名进入聊天室"></el-input>
-          <span v-if="isLen" style="color:red"><i class="el-icon-warning-outline"></i> 长度在2~10之间</span>
-          <span v-if="isError" style="color:red"><i class="el-icon-warning-outline"></i> 昵称已存在</span>
-          <button id="close-btn" style="display:none;"  type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-          
+          <span v-if="isLen" style="color:red">
+            <i class="el-icon-warning-outline"></i> 长度在2~10之间
+          </span>
+          <span v-if="isError" style="color:red">
+            <i class="el-icon-warning-outline"></i> 昵称已存在
+          </span>
+          <button
+            id="close-btn"
+            style="display:none;"
+            type="button"
+            class="btn btn-default"
+            data-dismiss="modal"
+          >关闭</button>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" @click="zhuce()">注册</button>
           </div>
@@ -136,17 +146,21 @@
         <div id="avatar">
           <label for="ava">Avatar</label>
           <div id="ava">
-            <input type="file" id="saveImage" name="myphoto"/>
+            <input type="file" id="saveImage" name="icon" />
             <!--预览框-->
             <center>
               <div class="viewPhoto" v-if="!isShow">
-                <img :src="imageSave" id="portrait" style="width:9em;height:9em;cursor:pointer;" @click="moni()" />
+                <img
+                  :src="imageSave"
+                  id="portrait"
+                  style="width:9em;height:9em;cursor:pointer;"
+                  @click="moni()"
+                />
               </div>
             </center>
             <div id="tishi" v-if="isShow">
               <center>
                 <img class="moni" title="点我上传头像" src="img/avatar.png" alt="150*150" @click="moni()" />
-                
               </center>
               <center>
                 <p style="color: rgb(144, 144, 151);">You can upload jpg,gif or png files.</p>
@@ -215,14 +229,14 @@ export default {
       time: "",
       imageSave: "",
       isShow: true,
-      isError:false,
-      isLen:false
-    }
-    
+      isError: false,
+      isLen: false
+    };
   },
   mounted() {
     this.isRandT();
     this.yulan();
+    this.getTx();
   },
   created() {
     this.currentTime();
@@ -233,6 +247,8 @@ export default {
       console.log(MSG.name);
       localStorage.setItem("msg", JSON.stringify(MSG));
       let _token = localStorage.getItem("token");
+      _token = _token.replace('"', "").replace('"', "");
+
       this.$axios
         .patch(
           "/api/user/",
@@ -243,8 +259,8 @@ export default {
           })
         )
         .then(rsp => {
-          let data=JSON.parse(rsp.data);
-          console.log(data);
+          let data = JSON.parse(JSON.stringify(rsp.data)).data;
+
           let datatoken = data.token;
           let id = data.id;
           localStorage.setItem("token", datatoken);
@@ -255,30 +271,28 @@ export default {
         });
     },
     zhuce() {
-      let _this=this;
+      let _this = this;
       let MSG = { name: this.name, phone: this.phone, email: this.email };
-      console.log(MSG.name);
+
       this.$axios
-        .post(
-          "/api/user/",{username:this.name,action:"quicklogin"}
-        )
+        .post("/api/user/", { username: this.name, action: "quicklogin" })
         .then(rsp => {
-           _this.isError=false;
-           _this.close();
-           let usericons = "http://39.106.119.191/uploads/usericons/";
-           console.log(JSON.parse(JSON.stringify(rsp.data)));
-           let data=JSON.parse(JSON.stringify(rsp.data));
-           console.log(data);
-           _this.imageSave =usericons + data.icon;
-           
+          _this.isError = false;
+          _this.close();
+          let data = JSON.parse(JSON.stringify(rsp.data)).data;
+
+          let usericons = "http://39.106.119.191/uploads/usericons/";
+
+          _this.imageSave = usericons + data.icon;
+
           let datatoken = data.token;
           let id = data.id;
           localStorage.setItem("msg", JSON.stringify(MSG));
           localStorage.setItem("token", JSON.stringify(datatoken));
-          localStorage.setItem("id", JSON.stringify(IDBDatabase));
+          localStorage.setItem("id", JSON.stringify(id));
         })
         .catch(error => {
-          _this.isError=true;
+          _this.isError = true;
         });
     },
     loadMsg() {
@@ -324,16 +338,29 @@ export default {
     },
     imgSubmit() {
       let _this = this;
+      let _token = localStorage.getItem("token");
+      _token = _token.replace('"', "").replace('"', "");
+      let _id = localStorage.getItem("id");
       let x = document.getElementById("saveImage").files[0];
+      console.log(x);
       let icon = new FormData();
-      icon.append("file", x, x.name);
-      let config = { headers: { "Content-Type": "multipart/form-data" } };
+
+      icon.append("icon", x, x.name);
+      icon.append("token", _token);
+      console.log(icon.get("file"));
+      let config = {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      };
       this.$axios
         .patch("/api/user/", icon, config)
-        .then(function(res) {
+        .then(function(rsp) {
           let usericons = "http://39.106.119.191/uploads/usericons/";
-          let data=JSON.parse(res.data);
-          _this.imageSave =  usericons + data.icon;
+          let data = JSON.parse(JSON.stringify(rsp.data)).data;
+          _this.imageSave = usericons + data.icon;
+
+          document.getElementById("pro-tx").src = usericons + data.icon;
+          localStorage.setItem("selficon", _this.imageSave);
+
           _this.$notify({
             type: "success",
             message: "上传成功!",
@@ -359,16 +386,22 @@ export default {
         this.loadMsg();
       }
     },
-    isProLen(){
-      if(this.name.length<2||this.name.length>10){
-        this.isLen=true;
-        this.name="";
-      }else{
-        this.isLen=false;
+    isProLen() {
+      if (this.name.length < 2 || this.name.length > 10) {
+        this.isLen = true;
+        this.name = "";
+      } else {
+        this.isLen = false;
       }
     },
-    close(){
+    close() {
       document.getElementById("close-btn").click();
+    },
+    getTx() {
+      if (localStorage.getItem("selficon"))
+        document.getElementById("pro-tx").src = localStorage.getItem(
+          "selficon"
+        );
     }
   }
 };

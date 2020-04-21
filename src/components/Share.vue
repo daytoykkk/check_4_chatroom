@@ -7,7 +7,7 @@
         <div id="shareIntro">
             <div id="shareGroup">
                 <div id="shareTou">
-                    <img src="img/logo.png">
+                    <img id="group-tx" src="../assets/logo.png">
                 </div>
                 <div style="margin-left: 5%;">
                     <h3>Documentation</h3>
@@ -27,9 +27,10 @@
             <br>
             <div id="fen">
                 <br>
-                <p>新浪微博<a href="#"><span class="fa fa-weibo"></span></a></p><hr>
-                <p>微信<a href="#"><span class="fa fa-weixin"></span></a></p><hr>
-                <p>QQ<a href="#"><span class="fa fa-qq"></span></a></p>
+                <p>新浪微博<a href="#">
+                    <img src="../assets/weibo.png"></a></p><hr>
+                <p>微信<a href="#"><img src="../assets/wechat.png"></a></p><hr>
+                <p>QQ<a href="#"><img src="../assets/QQ.png"></a></p>
             </div>
         </div>
     </div>
@@ -110,9 +111,15 @@
 <script type="text/javascript">
     import Msg from './Msg.js'
     export default{
+        mounted(){
+            this.getTx();
+        },
         methods:{
             close:function(){
                 Msg.$emit("obj","0");
+            },
+            getTx(){
+                document.getElementById("group-tx").src=localStorage.getItem("selficon");
             }
         }
     }

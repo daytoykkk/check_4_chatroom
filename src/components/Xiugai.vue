@@ -175,21 +175,19 @@ export default {
     saveMsg() {
       let _this = this;
       let Group = { name: this.groupName, detail: this.des };
-      console.log(Group.groupName);
+     
       let token1 = localStorage.getItem("token");
-      let roomid1=localStorage.getItem("roomid");
+      token1 = token1.replace('"', "").replace('"', "");
       this.$axios
-        .patch("http://39.106.119.191/api/room/", {
+        .patch("/api/room/", {
           name: this.groupName,
           detail: this.des,
           token: token1,
-          roomid:roomid1
+          action: "register"
         })
         .then(rsp => {
-          let data=JSON.parse(res.data);
-          let roomid = data.roomid;
+           let data = JSON.parse(JSON.stringify(rsp.data)).data;
           localStorage.setItem("group", JSON.stringify(Group));
-          localStorage.setItem("roomid", roomid);
         })
         .catch(error => {});
     },
@@ -250,17 +248,25 @@ export default {
       };
     },
     imgSubmit() {
-      let _this = this;
+     let _this = this;
+      let _token = localStorage.getItem("token");
+      _token = _token.replace('"', "").replace('"', "");
+
       let x = document.getElementById("saveImage").files[0];
       let icon = new FormData();
-      icon.append("file", x, x.name);
-      let config = { headers: { "Content-Type": "multipart/form-data" } };
+      icon.append("icon", x, x.name);
+      icon.append("token", _token);
+      icon.append("action", "register");
+      let config = {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      };
       this.$axios
-        .patch("http://39.106.119.191/api/room/", icon, config)
-        .then(function(res) {
-          let roomicon = "http://39.106.119.191/uploads/rooms/";
-          let data=JSON.parse(res.data);
-          _this.imageSave = roomicon + data.icon;
+        .patch("/api/room/", icon, config)
+        .then(function(rsp) {
+          let roomicons = "http://39.106.119.191/uploads/rooms/";
+          let data = JSON.parse(JSON.stringify(rsp.data)).data;
+          _this.imageSave = roomicons + data.icon;
+          localStorage.setItem("gruopicon", _this.imageSave);
           _this.$notify({
             type: "success",
             message: "上传成功!",

@@ -118,18 +118,18 @@ export default {
       let Group = { name: this.groupName, detail: this.des };
       console.log(Group.groupName);
       let token1 = localStorage.getItem("token");
+      token1 = token1.replace('"', "").replace('"', "");
       this.$axios
-        .post("http://39.106.119.191/api/room/", {
+        .post("/api/room/", {
           name: this.groupName,
           detail: this.des,
           token: token1,
           action: "register"
         })
         .then(rsp => {
-          let data=JSON.parse(res.data);
-          let roomid = data.roomid;
-          localStorage.setItem("group", JSON.stringify(Group));
-          localStorage.setItem("roomid", roomid);
+          let data = JSON.parse(JSON.stringify(rsp.data)).data;
+          let newurl = data.url;
+          localStorage.setItem("newurl", newurl);
         })
         .catch(error => {});
     },
@@ -182,20 +182,29 @@ export default {
     },
     imgSubmit() {
       let _this = this;
+      let _token = localStorage.getItem("token");
+      _token = _token.replace('"', "").replace('"', "");
+
       let x = document.getElementById("saveImage").files[0];
       let icon = new FormData();
-      icon.append("file", x, x.name);
-      let config = { headers: { "Content-Type": "multipart/form-data" } };
+      icon.append("icon", x, x.name);
+      icon.append("token", _token);
+      icon.append("action", "register");
+      let config = {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      };
       this.$axios
-        .post("http://39.106.119.191/api/room/", icon, config)
-        .then(function(res) {
-          let roomicon = "http://39.106.119.191/uploads/rooms/";
-          let data=JSON.parse(res.data);
-          _this.imageSave = roomicon + data.icon;
-         let url=data.url;
-         let host_id=data.host_id;
-         localStorage.setItem("url",url);
-         localStorage.setItem("host_id",host_id);
+        .post("/api/room/", icon, config)
+        .then(function(rsp) {
+          let roomicons = "http://39.106.119.191/uploads/rooms/";
+          let data = JSON.parse(JSON.stringify(rsp.data)).data;
+          _this.imageSave = roomicons + data.icon;
+          localStorage.setItem("gruopicon", _this.imageSave);
+          _this.$notify({
+            type: "success",
+            message: "上传成功!",
+            offset: 160
+          });
         })
         .catch(function(error) {
           console.log(error);

@@ -11,24 +11,36 @@
       </div>
 
       <a href="#" @click="isSearch" id="daoa" title="搜索">
-        <span class="fa fa-search"></span>
+        <img
+          src="../assets/search.png"
+          title="搜索"
+          style="margin-left: 1.5em;margin-top:1em;width:1.8em;height:1.8em;"
+        />
       </a>
       <a href="#" @click="show1" title="分享">
-        <span class="fa fa-user-plus"></span>
+        <img
+          src="../assets/share.png"
+          title="分享"
+          style="margin-left: 1.5em;margin-top:1em;width:1.8em;height:1.8em;"
+        />
       </a>
 
       <li class="dropdown" style="list-style-type:none;position:relative;">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-          <span class="fa fa-ellipsis-v" title="更多"></span>
+          <img
+            src="../assets/more.png"
+            title="更多"
+            style="margin-left: 1.5em;margin-top:1em;width:1.8em;height:1.8em;"
+          />
         </a>
         <ul class="dropdown-menu" id="daohangUl">
           <li @click="show2">
             Mute
-            <span class="fa fa-sliders" style="transform:rotate(-90deg);"></span>
+            <span class="el-icon-s-operation" style="transform:rotate(-90deg);"></span>
           </li>
           <li>
             Delet
-            <span class="fa fa-trash-o"></span>
+            <span class="el-icon-delete"></span>
           </li>
         </ul>
       </li>
@@ -39,7 +51,12 @@
       <!--搜索框-->
       <div v-if="isShow==1" style="width:80%;margin-left:10%;margin-top:2em;">
         <div class="input-group" style="display: flex;">
-          <input style="width:80%;" type="text" class="form-control" placeholder="Search for message or users" />
+          <input
+            style="width:80%;"
+            type="text"
+            class="form-control"
+            placeholder="Search for message or users"
+          />
           <input style="width:4%;" type="button" class="search" />
         </div>
       </div>
@@ -68,18 +85,15 @@
         ></textarea>
       </div>
       <a href="#">
-        <span class="fa fa-smile-o"></span>
+        <img src="../assets/biaoqing.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
       </a>
       <a href="#" @click="getData()">
-        <i class="el-icon-paperclip"></i>
+        <img src="../assets/link1.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
       </a>
-      <div id="senda" @click="sendText()">
-        <center>
-          <a href="#">
-            <span class="fa fa-send-o"></span>
-          </a>
-        </center>
-      </div>
+
+      <a href="#" @click="sendText()">
+        <img src="../assets/send.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
+      </a>
     </div>
   </div>
 </template>
@@ -167,19 +181,7 @@ p {
   margin-left: 2%;
   margin-top: 4%;
 }
-#senda {
-  width: 3em;
-  height: 3em;
-  text-align: center;
-  background-color: rgb(1, 118, 255);
-  border-radius: 50%;
-  margin-left: 2%;
-  margin-top: 4%;
-}
-#senda span {
-  color: white;
-  font-size: 0.7em;
-}
+
 #fasong {
   width: 85%;
 }
@@ -213,8 +215,8 @@ export default {
       userId: null,
       list: [],
       contentText: "",
-      roomid:"",
-      token:""
+      roomid: "",
+      token: ""
     };
   },
   created() {
@@ -272,7 +274,9 @@ export default {
     initWebSocket: function() {
       let _this = this;
       if (window.WebSocket) {
-        let ws = new WebSocket("ws://http://39.106.119.191/api/ws"+"?token="+_this.token);
+        let ws = new WebSocket(
+          "ws://http://39.106.119.191/api/ws" + "?token=" + _this.token
+        );
         _this.ws = ws;
         ws.onopen = function(e) {
           console.log("服务器连接成功");
@@ -295,22 +299,10 @@ export default {
         };
       }
     },
-    getData() {
+    getRandT() {
       let _this = this;
-      alert("aa");
-      _this.$axios.get("http://39.106.119.191/api/user/")
-      .then(rsp=>{
-        console.log(rsp)
-      }).catch(error=>{
-        console.log(error)
-      }
-        
-      );
-    },
-    getRandT(){
-      let _this=this;
-      _this.roomid=localStorage.getItem("roomid");
-      _this.token=localStorage.getItem("token");
+      _this.roomid = localStorage.getItem("roomid");
+      _this.token = localStorage.getItem("token");
     }
   }
 };
