@@ -3,7 +3,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
 import router from './router'
-import Axios from 'axios'
+import axios from 'axios'
 import qs from 'qs'
 
 
@@ -11,13 +11,12 @@ Vue.use(ElementUI);
 
 Vue.prototype.qs=qs;
 Vue.config.productionTip = false;
-Vue.prototype.$axios = Axios;
+Vue.prototype.$axios = axios;
 
 
-//Axios.defaults.baseURL = '';
-
-Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'; 
-Axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.baseURL="http://39.106.119.191/"
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'; 
+axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
 
 new Vue({
   router,

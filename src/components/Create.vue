@@ -126,7 +126,8 @@ export default {
           action: "register"
         })
         .then(rsp => {
-          let roomid = rsp.data.roomid;
+          let data=JSON.parse(res.data);
+          let roomid = data.roomid;
           localStorage.setItem("group", JSON.stringify(Group));
           localStorage.setItem("roomid", roomid);
         })
@@ -189,9 +190,10 @@ export default {
         .post("http://39.106.119.191/api/room/", icon, config)
         .then(function(res) {
           let roomicon = "http://39.106.119.191/uploads/rooms/";
-          _this.imageSave = roomicon + res.data.icon;
-         let url=res.data.url;
-         let host_id=res.data.host_id;
+          let data=JSON.parse(res.data);
+          _this.imageSave = roomicon + data.icon;
+         let url=data.url;
+         let host_id=data.host_id;
          localStorage.setItem("url",url);
          localStorage.setItem("host_id",host_id);
         })

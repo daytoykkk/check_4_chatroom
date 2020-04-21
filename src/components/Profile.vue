@@ -104,7 +104,7 @@
           <button id="close-btn" style="display:none;"  type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @click="zhuce()">提交更改</button>
+            <button type="button" class="btn btn-primary" @click="zhuce()">注册</button>
           </div>
         </div>
         <!-- /.modal-content -->
@@ -216,14 +216,12 @@ export default {
       imageSave: "",
       isShow: true,
       isError:false,
-      isLen:false,
-      isFirst:false
+      isLen:false
     }
     
   },
   mounted() {
     this.isRandT();
-    this.close();
     this.yulan();
   },
   created() {
@@ -237,7 +235,7 @@ export default {
       let _token = localStorage.getItem("token");
       this.$axios
         .patch(
-          "http://39.106.119.191/api/user/",
+          "/api/user/",
           qs.stringify({
             username: this.name,
             phone: this.phone,
@@ -245,9 +243,10 @@ export default {
           })
         )
         .then(rsp => {
-          console.log(rsp.data);
-          let datatoken = rsp.data.token;
-          let id = rsp.data.id;
+          let data=JSON.parse(rsp.data);
+          console.log(data);
+          let datatoken = data.token;
+          let id = data.id;
           localStorage.setItem("token", datatoken);
           localStorage.setItem("id", id);
         })
@@ -261,21 +260,25 @@ export default {
       console.log(MSG.name);
       this.$axios
         .post(
-          "http://39.106.119.191/api/user/",{username:this.name,action:"quicklogin"}
+          "/api/user/",{username:this.name,action:"quicklogin"}
         )
         .then(rsp => {
-           this.isError=false;
-           this.isFirst = false;
+           _this.isError=false;
+           _this.close();
            let usericons = "http://39.106.119.191/uploads/usericons/";
-           _this.imageSave =usericons + res.data.icon;
-          let datatoken = rsp.data.token;
-          let id = rsp.data.id;
+           console.log(JSON.parse(JSON.stringify(rsp.data)));
+           let data=JSON.parse(JSON.stringify(rsp.data));
+           console.log(data);
+           _this.imageSave =usericons + data.icon;
+           
+          let datatoken = data.token;
+          let id = data.id;
           localStorage.setItem("msg", JSON.stringify(MSG));
-          localStorage.setItem("token", datatoken);
-          localStorage.setItem("id", id);
+          localStorage.setItem("token", JSON.stringify(datatoken));
+          localStorage.setItem("id", JSON.stringify(IDBDatabase));
         })
         .catch(error => {
-          this.isError=true;
+          _this.isError=true;
         });
     },
     loadMsg() {
@@ -326,10 +329,11 @@ export default {
       icon.append("file", x, x.name);
       let config = { headers: { "Content-Type": "multipart/form-data" } };
       this.$axios
-        .patch("http://39.106.119.191/api/user/", icon, config)
+        .patch("/api/user/", icon, config)
         .then(function(res) {
           let usericons = "http://39.106.119.191/uploads/usericons/";
-          _this.imageSave =  usericons + res.data.icon;
+          let data=JSON.parse(res.data);
+          _this.imageSave =  usericons + data.icon;
           _this.$notify({
             type: "success",
             message: "上传成功!",
@@ -364,9 +368,7 @@ export default {
       }
     },
     close(){
-      if(this.isFirst==false){
-        document.getElementById("close-btn").click();
-      }
+      document.getElementById("close-btn").click();
     }
   }
 };

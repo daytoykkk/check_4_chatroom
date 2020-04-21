@@ -88,7 +88,8 @@ export default {
       let token=localStorage.getItem("token");
       this.$axios.get("http://39.106.119.191/api/room/",token)
       .then(function(res){
-        _this.lists=res.data;
+        let data=JSON.parse(res.data);
+        _this.lists=data;
         for(let i=0,len=res.data.length;i<len;i++){
           _this.lists[i].icon="http://39.106.119.191/uploads/rooms/"+_this.lists[i].icon;
         }

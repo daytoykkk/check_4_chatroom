@@ -186,7 +186,8 @@ export default {
           roomid:roomid1
         })
         .then(rsp => {
-          let roomid = rsp.data.roomid;
+          let data=JSON.parse(res.data);
+          let roomid = data.roomid;
           localStorage.setItem("group", JSON.stringify(Group));
           localStorage.setItem("roomid", roomid);
         })
@@ -258,7 +259,8 @@ export default {
         .patch("http://39.106.119.191/api/room/", icon, config)
         .then(function(res) {
           let roomicon = "http://39.106.119.191/uploads/rooms/";
-          _this.imageSave = roomicon + res.data.icon;
+          let data=JSON.parse(res.data);
+          _this.imageSave = roomicon + data.icon;
           _this.$notify({
             type: "success",
             message: "上传成功!",
