@@ -222,7 +222,7 @@ export default {
   created() {
     this.getUserID();
   },
-  mounted: function() {
+  mounted() {
     this.getRandT();
     this.initWebSocket();
   },
@@ -244,8 +244,7 @@ export default {
       el.scrollTop = el.scrollHeight;
     },
     getUserID: function() {
-      let time = new Date().getTime();
-      this.userId = time;
+      this.userId = localStorage.getItem("id");
     },
     sendText: function() {
       let _this = this;

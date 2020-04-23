@@ -1,6 +1,8 @@
 <template>
   <i style="text-align: center;border-right: 2px solid #f5f6fa;">
-    <center><img src="img/logo.png" style="margin-top: 5%;" /></center>
+    <center>
+      <img src="img/logo.png" style="margin-top: 5%;" />
+    </center>
     <div class="tubiao">
       <i id="one" class="el-icon-edit-outline" :class="{active:isone}" @click="menu1"></i>
       <br />
@@ -23,16 +25,20 @@
     </center>
 
     <el-drawer id="list" title="聊天列表" :visible.sync="table" direction="ltr" size="20%">
-      <a href="#" v-for="(list,index) in lists" :key="index" :id="list.roomid">
+      <div class="list-box" v-for="(list,index) in lists" :key="index" :id="list.roomid">
         <img
           :src="list.icon"
           data-src="holder.js/64*64"
           data-holder-rendered="true"
-          style="width:3em;height:3em;"
+          style="width:3em;height:3em;margin-top:0.5em;border-radius:50%;border:1px solid pink;"
         />
-        {{list.name}}
-        <span>{{list.detail}}</span>
-      </a>
+        <div class="list-msg-box" @click="toRoom(list)">
+          <p>
+            {{list.name}}
+          </p>
+          <span>{{list.detail}}</span>
+        </div>
+      </div>
     </el-drawer>
   </i>
 </template>
@@ -49,6 +55,21 @@
 }
 .active {
   color: #3f97ff;
+}
+.list-box{
+  display: flex;
+}
+.list-msg-box p {
+  font-style: normal;
+  font-size: 1.2em;
+  margin-left: -1em;
+  cursor: pointer;
+}
+.list-msg-box span {
+  font-style: normal;
+  color: #babfc4;
+   margin-left: 1em;
+   cursor: pointer;
 }
 </style>
 
@@ -84,19 +105,27 @@ export default {
       this.isthree = true;
     },
     getList() {
-      let _this=this;
-      let token=localStorage.getItem("token");
-      this.$axios.get("http://39.106.119.191/api/room/",token)
-      .then(function(res){
-        let data=JSON.parse(res.data);
-        _this.lists=data;
-        for(let i=0,len=res.data.length;i<len;i++){
-          _this.lists[i].icon="http://39.106.119.191/uploads/rooms/"+_this.lists[i].icon;
-        }
-      })
-      .catch(function(error){
-        console.log(error);
-      })
+      let _this = this;
+      let _token = localStorage.getItem("token");
+      _token = _token.replace('"', "").replace('"', "");
+      this.$axios
+        .get("/api/room/", { params: { token: _token } })
+        .then(function(rsp) {
+          let data = JSON.parse(JSON.stringify(rsp.data)).data;
+          _this.lists = data;
+          for (let i = 0, len = data.length; i < len; i++) {
+            _this.lists[i].icon =
+              "http://39.106.119.191/uploads/rooms/" + _this.lists[i].icon;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    toRoom(list){
+      localStorage.setItem("roomid",list.roomid);
+      document.getElementById("two").click();
+      Msg.$emit("enter",1);
     }
   }
 };

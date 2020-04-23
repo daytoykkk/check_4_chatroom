@@ -129,7 +129,9 @@ export default {
         .then(rsp => {
           let data = JSON.parse(JSON.stringify(rsp.data)).data;
           let newurl = data.url;
+          let _roomid=data.roomid;
           localStorage.setItem("newurl", newurl);
+          localStorage.setItem("roomid",_roomid);
         })
         .catch(error => {});
     },

@@ -175,7 +175,7 @@ export default {
     saveMsg() {
       let _this = this;
       let Group = { name: this.groupName, detail: this.des };
-     
+      let _roomid=localStorage.getItem("roomid");
       let token1 = localStorage.getItem("token");
       token1 = token1.replace('"', "").replace('"', "");
       this.$axios
@@ -183,13 +183,16 @@ export default {
           name: this.groupName,
           detail: this.des,
           token: token1,
-          action: "register"
+          action: "register",
+          roomid:_roomid
         })
         .then(rsp => {
            let data = JSON.parse(JSON.stringify(rsp.data)).data;
           localStorage.setItem("group", JSON.stringify(Group));
         })
-        .catch(error => {});
+        .catch(error => {
+          console.log(error);
+        });
     },
     loadMsg() {
       let group = JSON.parse(localStorage.getItem("group"));
@@ -251,12 +254,13 @@ export default {
      let _this = this;
       let _token = localStorage.getItem("token");
       _token = _token.replace('"', "").replace('"', "");
-
+      let _roomid=localStorage.getItem("roomid");
       let x = document.getElementById("saveImage").files[0];
       let icon = new FormData();
       icon.append("icon", x, x.name);
       icon.append("token", _token);
       icon.append("action", "register");
+      icon.append("roomid",_roomid);
       let config = {
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
       };
