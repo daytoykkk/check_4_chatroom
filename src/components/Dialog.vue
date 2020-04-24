@@ -3,10 +3,10 @@
     <!--导航栏-->
     <div id="daohang">
       <div id="daoSelf">
-        <img src="img/logo.png" />
+        <img :src="grouptx" />
         <div style="margin-left: 1em;">
-          <h5>Name</h5>
-          <p>简介</p>
+          <h5>{{groupname}}</h5>
+          <p>{{groupdes}}</p>
         </div>
       </div>
 
@@ -63,11 +63,32 @@
 
       <header>聊天室人数:{{count}}</header>
       <div class="msg" v-for="(i,index) in list" :key="index">
-        <div class="user-msg">
-          <span
-            :style="i.username == userId?' float:right;' : ''"
-            :class="i.username == userId? 'right':'left'"
-          >{{i.content}}</span>
+        <!--左边-->
+        <div class="user-msg-left" v-if="i.user_id!=userId">
+          <div class="left-tx">
+            <img :src="i.user_icon" />
+            <p>{{i.time.substr(11,5)}}</p>
+          </div>
+          <div class="left-msg" v-if="i.type==1">
+            <textarea cols="30" rows="1" v-model="i.msg" readonly></textarea>
+          </div>
+          <div class="left-img" v-else-if="i.type==2">
+            <img :src="i.msg" />
+          </div>
+        </div>
+
+        <!--右边-->
+        <div class="user-msg-right" v-else>
+          <div class="right-msg" v-if="i.type==1">
+            <textarea cols="30" rows="1" v-model="i.msg" readonly></textarea>
+          </div>
+          <div class="right-img" v-else-if="i.type==2">
+            <img :src="i.msg" />
+          </div>
+          <div class="left-tx">
+            <img :src="i.user_icon" />
+            <p>{{i.time.substr(11,5)}}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -87,7 +108,7 @@
       <a href="#">
         <img src="../assets/biaoqing.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
       </a>
-      <a href="#" @click="getData()">
+      <a href="#">
         <img src="../assets/link1.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
       </a>
 
@@ -99,6 +120,74 @@
 </template>
 
 <style type="text/css" scoped>
+.left-tx {
+  align-content: center;
+}
+.left-tx p {
+  color: #babfc4;
+  font-size: 1em;
+}
+.left-tx img {
+  height: 3em;
+  width: 3em;
+  border-radius: 50%;
+}
+.left-msg {
+  padding: 0.5em;
+}
+.left-msg textarea {
+  background-color: #53a8ff;
+  border: none;
+  resize: none;
+  border-radius: 0.5em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  overflow-y: visible;
+}
+.left-img {
+  background-color: rgb(238, 238, 238);
+  border-radius: 0.5em;
+  padding: 0.5em;
+  margin-left: 1em;
+}
+.left-img img {
+  height: 8em;
+  width: auto;
+}
+.right-msg {
+  padding: 0.5em;
+}
+.right-msg textarea {
+  font-size: 1.2em;
+  background-color: #53a8ff;
+  float: right;
+  border: none;
+  resize: none;
+  border-radius: 0.5em;
+  margin-right: 0.5em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  overflow-y: visible;
+}
+.right-img {
+  background-color: rgb(238, 238, 238);
+  border-radius: 0.5em;
+  padding: 0.5em;
+  margin-right: 1em;
+}
+.right-img img {
+  height: 8em;
+  width: auto;
+}
+.user-msg-left {
+  display: flex;
+  margin-top: 1.5em;
+}
+.user-msg-right {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5em;
+}
 .mainDialog {
   height: 52em;
   background-color: #ffffff;
@@ -191,16 +280,6 @@ p {
   resize: none;
   border: none;
 }
-
-.left {
-  background: white;
-  animation: toLeft 0.5s ease both 1;
-}
-.right {
-  background: #53a8ff;
-  color: white;
-  animation: toright 0.5s ease both 1;
-}
 </style>
 
 
@@ -216,7 +295,10 @@ export default {
       list: [],
       contentText: "",
       roomid: "",
-      token: ""
+      token: "",
+      grouptx: "",
+      groupname: "",
+      groupdes: ""
     };
   },
   created() {
@@ -224,6 +306,7 @@ export default {
   },
   mounted() {
     this.getRandT();
+    this.getMsg();
     this.initWebSocket();
   },
   methods: {
@@ -244,19 +327,20 @@ export default {
       el.scrollTop = el.scrollHeight;
     },
     getUserID: function() {
-      this.userId = localStorage.getItem("id");
+      //this.userId = localStorage.getItem("id");
+      this.userId = 11;
     },
     sendText: function() {
       let _this = this;
       _this.$refs["sendMsg"].focus();
       if (!_this.contentText) {
+        alert("不能发空消息！");
         return;
       }
       let params = {
-        username: _this.userId,
         msg: _this.contentText,
         type: 1,
-        roomid: roomid
+        roomid: _this.roomid
       };
       _this.ws.send(JSON.stringify(params));
       _this.list.push({
@@ -281,19 +365,37 @@ export default {
           console.log("服务器连接成功");
         };
         ws.onclose = function(e) {
-          console.log("服务器连接关闭");
+          console.log(
+            "websocket 断开: " + e.code + " " + e.reason + " " + e.wasClean
+          );
+          console.log(e);
+          //window.location.reload();
+        };
+        window.onbeforeunload = function(event) {
+          alert("您确定离开该网页吗？");
+          console.log("关闭WebSocket连接！");
+          let send_msg = {
+            msg: this.contentText,
+            type: 0,
+            is_online: 0
+          };
+          this.contentText = "";
+          ws.send(JSON.stringify(send_msg));
         };
         ws.onerror = function() {
           console.log("服务器连接出错");
         };
         ws.onmessage = function(e) {
-          let resData = JSON.parse(e.data);
-          console.log(resData);
+          let res = JSON.parse(e.data);
+          console.log(res);
           _this.list.push({
-            username: resData.username,
-            msg: resData.msg,
-            type: resData.type,
-            roomid: resData.roomid
+            user_icon: res.user_icon,
+            type: res.type,
+            msg: res.msg,
+            time: res.time,
+            user_id: res.user_id,
+            from_user: res.from_user,
+            roomid: res.roomid
           });
         };
       }
@@ -302,6 +404,34 @@ export default {
       let _this = this;
       _this.roomid = localStorage.getItem("roomid");
       _this.token = localStorage.getItem("token");
+    },
+    getMsg() {
+      this.$axios
+        .get("/api/msg/", {
+          params: { token: this.token, roomid: this.roomid }
+        })
+        .then(res => {
+          this.list = res.data.data;
+          for (let i = 0, len = this.list.length; i < len; i++) {
+            this.list[i].user_icon =
+              "http://39.106.119.191/uploads/usericons/" +
+              this.list[i].user_icon;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+
+      this.$axios
+        .get("/api/room/info/", {
+          params: { roomid: this.roomid }
+        })
+        .then(res => {
+          let data = res.data.data;
+          this.groupname = data.name;
+          this.groupdes = data.detail;
+          this.grouptx = "http://39.106.119.191/uploads/rooms/" + data.icon;
+        });
     }
   }
 };

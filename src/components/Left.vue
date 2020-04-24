@@ -25,7 +25,7 @@
     </center>
 
     <el-drawer id="list" title="聊天列表" :visible.sync="table" direction="ltr" size="20%">
-      <div class="list-box" v-for="(list,index) in lists" :key="index" :id="list.roomid">
+      <div class="list-box" :class="{thisroom:list.roomid==roomid}" v-for="(list,index) in lists" :key="index" :id="list.roomid">
         <img
           :src="list.icon"
           data-src="holder.js/64*64"
@@ -56,6 +56,9 @@
 .active {
   color: #3f97ff;
 }
+.thisroom{
+  background-color:#c0e3ff;
+}
 .list-box{
   display: flex;
 }
@@ -67,7 +70,7 @@
 }
 .list-msg-box span {
   font-style: normal;
-  color: #babfc4;
+  color: rgb(148, 158, 168);
    margin-left: 1em;
    cursor: pointer;
 }
@@ -82,8 +85,12 @@ export default {
       istwo: false,
       isthree: true,
       table: false,
-      lists: []
+      lists: [],
+      roomid:""
     };
+  },
+  mounted(){
+    this.roomid=localStorage.getItem("roomid");
   },
   methods: {
     menu1: function() {
@@ -122,10 +129,10 @@ export default {
           console.log(error);
         });
     },
-    toRoom(list){
+    toRoom(list){ //跳转到对应房间
       localStorage.setItem("roomid",list.roomid);
-      document.getElementById("two").click();
-      Msg.$emit("enter",1);
+      this.roomid=list.roomid;
+      this.menu2();
     }
   }
 };

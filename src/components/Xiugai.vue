@@ -8,17 +8,17 @@
       <br />
       <center>
         <div id="touxiang">
-          <img src="img/logo.png" />
+          <img :src="grouptx" style="width:4em;height:4em;border-radius:50%;" />
         </div>
       </center>
       <center>
         <h4>
-          <b>{{groupName}}</b>
+          <b>{{groupname}}</b>
         </h4>
       </center>
       <center>
         <p style="color: rgb(187,192,198);font-size: 1.2em;width:90%; word-wrap: break-word;
-  word-break: break-all;">{{des}}</p>
+  word-break: break-all;">{{groupdes}}</p>
       </center>
     </div>
     <!--设置-->
@@ -65,7 +65,7 @@
       </span></p>
         <input
           type="text"
-          v-model="groupName"
+          v-model="groupname"
           class="form-control"
           id="name"
           placeholder="Group name"
@@ -89,7 +89,7 @@
         <i class="el-icon-warning-outline">50字以内</i>
       </span></p>
         <textarea
-          v-model="des"
+          v-model="groupdes"
           class="form-control"
           rows="2"
           id="des"
@@ -158,13 +158,15 @@ import Msg from "./Msg.js";
 export default {
   data() {
     return {
-      groupName: "",
+      groupname: "",
       topic: "",
-      des: "",
+      groupdes: "",
+      grouptx:"",
       imageSave: "",
       isMaxName: false,
       isMaxDes: false,
-      isShow: true
+      isShow: true,
+      roomid:1
     };
   },
   mounted() {
@@ -195,10 +197,16 @@ export default {
         });
     },
     loadMsg() {
-      let group = JSON.parse(localStorage.getItem("group"));
-      this.groupName = group.groupName;
-      this.topic = group.topic;
-      this.des = group.des;
+      this.$axios
+        .get("/api/room/info/",{
+          params:{roomid:this.roomid}
+        })
+        .then(res=>{
+          let data=res.data.data;
+          this.groupname=data.name;
+          this.groupdes=data.detail;
+          this.grouptx="http://39.106.119.191/uploads/rooms/"+data.icon;
+        })
     },
     close() {
       Msg.$emit("obj", "0");
