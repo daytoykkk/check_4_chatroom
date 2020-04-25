@@ -63,14 +63,20 @@
 
       <header>聊天室人数:{{count}}</header>
       <div class="msg" v-for="(i,index) in list" :key="index">
+        <!--上下线通知-->
+        <div class="updown" v-if="i.user_id==-1">
+          <center><p v-if="i.is_online==1">{{i.username}}上线了</p>
+          <p v-else>{{i.username}}下线了</p></center>
+        </div>
+
         <!--左边-->
-        <div class="user-msg-left" v-if="i.user_id!=userId">
+        <div class="user-msg-left" v-else-if="i.user_id!=userId">
           <div class="left-tx">
             <img :src="i.user_icon" />
             <p>{{i.time.substr(11,5)}}</p>
           </div>
           <div class="left-msg" v-if="i.type==1">
-            <textarea cols="30" rows="1" v-model="i.msg" readonly></textarea>
+            <textarea autoHeight="true" cols="30" rows="1" v-model="i.msg" readonly></textarea>
           </div>
           <div class="left-img" v-else-if="i.type==2">
             <img :src="i.msg" />
@@ -80,7 +86,7 @@
         <!--右边-->
         <div class="user-msg-right" v-else>
           <div class="right-msg" v-if="i.type==1">
-            <textarea cols="30" rows="1" v-model="i.msg" readonly></textarea>
+            <textarea autoHeight="true" cols="30" v-model="i.msg" readonly></textarea>
           </div>
           <div class="right-img" v-else-if="i.type==2">
             <img :src="i.msg" />
@@ -120,6 +126,17 @@
 </template>
 
 <style type="text/css" scoped>
+.updown{
+  margin-top: 1.5em;
+}
+.updown p{
+  width: 20%;
+  background: hsl(212, 21%, 88%);
+  color:white;
+  border-radius: 2em;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
 .left-tx {
   align-content: center;
 }
@@ -143,6 +160,7 @@
   padding-left: 0.5em;
   padding-right: 0.5em;
   overflow-y: visible;
+  font-size: 1.2em;
 }
 .left-img {
   background-color: rgb(238, 238, 238);
@@ -327,8 +345,10 @@ export default {
       el.scrollTop = el.scrollHeight;
     },
     getUserID: function() {
-      //this.userId = localStorage.getItem("id");
-      this.userId = 11;
+      this.userId = 1;
+      this.token = "cffd35e72dab49d9bc264d1830be12d9";
+      localStorage.setItem("id", this.userId);
+      localStorage.setItem("token", this.token);
     },
     sendText: function() {
       let _this = this;
@@ -343,53 +363,48 @@ export default {
         roomid: _this.roomid
       };
       _this.ws.send(JSON.stringify(params));
-      _this.list.push({
-        username: _this.userId,
-        msg: _this.contentText,
-        type: 1,
-        roomid: roomid
-      });
       _this.contentText = "";
+      console.log(params);
       setTimeout(() => {
         _this.scrollBottom();
       }, 500);
     },
     initWebSocket: function() {
       let _this = this;
-      if (window.WebSocket) {
-        let ws = new WebSocket(
-          "ws://http://39.106.119.191/api/ws" + "?token=" + _this.token
-        );
-        _this.ws = ws;
-        ws.onopen = function(e) {
-          console.log("服务器连接成功");
+      var ws = new WebSocket(
+        "ws://39.106.119.191/api/ws/" + "?token=" + this.token
+      );
+      _this.ws = ws;
+
+      ws.onopen = function(e) {
+        console.log("服务器连接成功");
+      };
+      window.onbeforeunload = function(event) {
+        alert("您确定离开该网页吗？");
+        console.log("关闭WebSocket连接！");
+        let send_msg = {
+          msg: this.contentText,
+          type: 0,
+          is_online: 0
         };
-        ws.onclose = function(e) {
-          console.log(
-            "websocket 断开: " + e.code + " " + e.reason + " " + e.wasClean
-          );
-          console.log(e);
-          //window.location.reload();
-        };
-        window.onbeforeunload = function(event) {
-          alert("您确定离开该网页吗？");
-          console.log("关闭WebSocket连接！");
-          let send_msg = {
-            msg: this.contentText,
-            type: 0,
-            is_online: 0
-          };
-          this.contentText = "";
-          ws.send(JSON.stringify(send_msg));
-        };
-        ws.onerror = function() {
-          console.log("服务器连接出错");
-        };
-        ws.onmessage = function(e) {
-          let res = JSON.parse(e.data);
-          console.log(res);
+        _this.contentText = "";
+        ws.send(JSON.stringify(send_msg));
+      };
+      ws.onerror = function() {
+        console.log("服务器连接出错");
+      };
+      ws.onmessage = function(e) {
+        let res = eval("(" + e.data + ")");
+        console.log(res);
+        if (res.type == 0 && res.roomid == _this.roomid) {
           _this.list.push({
-            user_icon: res.user_icon,
+            user_id: -1,
+            username: res.username,
+            is_online: res.is_online
+          });
+        } else if(res.type!=0){
+          _this.list.push({
+            user_icon:"http://39.106.119.191/uploads/usericons/" + res.user_icon,
             type: res.type,
             msg: res.msg,
             time: res.time,
@@ -397,8 +412,8 @@ export default {
             from_user: res.from_user,
             roomid: res.roomid
           });
-        };
-      }
+        }
+      };
     },
     getRandT() {
       let _this = this;
@@ -432,6 +447,9 @@ export default {
           this.groupdes = data.detail;
           this.grouptx = "http://39.106.119.191/uploads/rooms/" + data.icon;
         });
+        setTimeout(() => {
+        this.scrollBottom();
+      }, 500);
     }
   }
 };
