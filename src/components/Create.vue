@@ -93,6 +93,14 @@
         class="btn btn-primary btn-lg"
       >Create group</button>
     </center>
+    <div>
+      <el-dialog title="分享群聊" :visible.sync="centerDialogVisible" width="30%" center>
+            <a :href="groupurl">点击进入房间:{{roomid}}</a>
+            <span slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="centerDialogVisible = false">关 闭</el-button>
+            </span>
+          </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -106,7 +114,10 @@ export default {
       imageSave: "",
       isMaxName: false,
       isMaxDes: false,
-      isShow: true
+      isShow: true,
+      centerDialogVisible:false,
+      roomid:"",
+      groupurl:""
     };
   },
   mounted() {
@@ -115,6 +126,10 @@ export default {
   methods: {
     createGroup() {
       let _this = this;
+      if(isMaxName==true||isMaxDes==true){
+        alert("群名或群描述不符合！");
+        return ;
+      }
       let Group = { name: this.groupName, detail: this.des };
       console.log(Group.groupName);
       let token1 = localStorage.getItem("token");
@@ -130,8 +145,10 @@ export default {
           let data = JSON.parse(JSON.stringify(rsp.data)).data;
           let newurl = data.url;
           let _roomid=data.roomid;
-          localStorage.setItem("newurl", newurl);
+         this.groupurl=newurl;
+          localStorage.setItem("url", newurl);
           localStorage.setItem("roomid",_roomid);
+          this.centerDialogVisible=true;
         })
         .catch(error => {});
     },

@@ -22,9 +22,9 @@ export default {
     }
   },
   methods:{
-    reload(){
+    async reload(){
       this.isRouterAlive=false;
-      this.$nextTick(function(){
+      await this.$nextTick(function(){
         this.isRouterAlive=true
       })
     }

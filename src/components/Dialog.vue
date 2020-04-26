@@ -77,7 +77,7 @@
           </div>
           <div class="left-msg" v-if="i.type==1">
             <p style="margin-bottom:-0.1em;">{{i.from_user}}</p>
-            <textarea autoHeight="true" cols="30" v-model="i.msg" readonly></textarea>
+            <div class="lll">{{i.msg}}</div>
           </div>
          <div v-else-if="i.type==2">
             <p style="margin-bottom:-0.1em;margin-left:0.9em;">{{i.from_user}}</p>
@@ -91,7 +91,7 @@
         <div class="user-msg-right" v-else>
           <div class="right-msg" v-if="i.type==1">
             <p style="margin-bottom:-0.1em;float:right;margin-right:1em;">{{i.from_user}}</p><br>
-            <textarea autoHeight="true" cols="30" v-model="i.msg" readonly></textarea>
+            <div class="rrr">{{i.msg}}</div>
           </div>
 
          <div v-else-if="i.type==2">
@@ -111,6 +111,17 @@
     <!--发送框-->
     <div id="chatSend">
       <div id="fasong">
+      <!--预览框-->
+         <input type="file" style="display:none;" id="saveImage" name="myphoto" />
+         <div class="viewPhoto" v-if="!isPng"  >
+          <img
+            :src="imageSave"
+            id="portrait"
+            style="height:9em;width:auto;cursor:pointer;"
+            title="点击删除"
+            @click="shanchu()"
+          />
+        </div>
         <textarea
           ref="sendMsg"
           v-model="contentText"
@@ -118,16 +129,17 @@
           cols="140"
           rows="4"
           placeholder="Type your message..."
+          v-if="isPng"
         ></textarea>
       </div>
       <a href="#">
         <img src="../assets/biaoqing.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
       </a>
-      <a href="#">
+      <a href="#" @click="moni()">
         <img src="../assets/link1.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
       </a>
 
-      <a href="#" @click="sendText()">
+      <a href="#" @click="sendText();imgSubmit()">
         <img src="../assets/send.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
       </a>
     </div>
@@ -161,7 +173,7 @@
 .left-msg {
   padding: 0.5em;
 }
-.left-msg textarea {
+.lll {
    font-size: 1.2em;
   background-color: rgb(238, 238, 238);
   border: none;
@@ -169,8 +181,13 @@
   border-radius: 0.5em;
   padding-left: 0.5em;
   padding-right: 0.5em;
-  overflow-y: visible;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+   word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
   font-size: 1.2em;
+  max-width: 20em;
 }
 .left-img {
   background-color: rgb(238, 238, 238);
@@ -185,20 +202,24 @@
 .right-msg {
   padding: 0.5em;
 }
-.right-msg textarea {
-  font-size: 1.2em;
+.rrr {
+   font-size: 1.2em;
   background-color: #53a8ff;
-  float: right;
   border: none;
   resize: none;
   border-radius: 0.5em;
-  margin-right: 0.5em;
   padding-left: 0.5em;
   padding-right: 0.5em;
-  overflow-y: visible;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+   word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
+  font-size: 1.2em;
+   max-width: 20em;
 }
 .right-img {
-  background-color: rgb(238, 238, 238);
+  background-color: #53a8ff;
   border-radius: 0.5em;
   padding: 0.5em;
   margin-right: 0.7em;
@@ -312,9 +333,12 @@
 <script type="text/javascript">
 import Msg from "./Msg.js";
 export default {
+   inject: ['reload'],
   data() {
     return {
       isShow: -1,
+      isPng:true,   //预览
+      imageSave:"",
       ws: null,
       count: 0,
       userId: null,
@@ -324,13 +348,16 @@ export default {
       token: "",
       grouptx: "",
       groupname: "",
-      groupdes: ""
+      groupdes: "",
+      isPhoto:false    //是否要发图片
     };
   },
   mounted() {
+    let _this=this;
     this.getRandTandU();
     this.getMsg();
     this.initWebSocket();
+    this.yulan();
   },
   methods: {
     show1: function() {
@@ -351,11 +378,14 @@ export default {
     },
     sendText: function() {
       let _this = this;
-      _this.$refs["sendMsg"].focus();
-      if (!_this.contentText) {
+      if(_this.isPhoto){
+          return;
+      }
+      if (!_this.contentText||_this.contentText=='\n') {
         alert("不能发空消息！");
         return;
       }
+      _this.$refs["sendMsg"].focus();
       let params = {
         msg: _this.contentText,
         type: 1,
@@ -454,7 +484,7 @@ export default {
         this.scrollBottom();
       }, 500);
     },
-     open() {
+     open() {   //退出房间
         this.$confirm('是否退出房间', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -475,7 +505,68 @@ export default {
             type: 'info',
             message: '已取消退出'
           });          
-        });}
+        });
+        },
+         moni() {
+      document.getElementById("saveImage").click();
+    },
+    yulan() {
+      let _this = this;
+      document.getElementById("saveImage").onchange = function() {
+        let imgFile = this.files[0];
+        if (imgFile) {
+          _this.isPng = false;
+          _this.isPhoto=true;
+        }
+        let fr = new FileReader();
+        fr.onload = function() {
+          document.getElementById("portrait").src = fr.result;
+        };
+        fr.readAsDataURL(imgFile);
+      };
+    },
+    imgSubmit() {
+      let _this = this;
+      if(_this.isPhoto==false){
+        return;
+      }
+      let _token = localStorage.getItem("token");
+      _token = _token.replace('"', "").replace('"', "");
+
+      let x = document.getElementById("saveImage").files[0];
+      let icon = new FormData();
+      icon.append("picture", x, x.name);
+      icon.append("token", _token);
+      icon.append("roomid", this.roomid);
+      let config = {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      };
+      this.$axios
+        .post("/api/msg/picture/", icon, config)
+        .then(function(res) {
+         let file= document.getElementById("saveImage");
+         file.value="";
+         _this.isPng = true;
+         _this.isPhoto=false;
+        })
+        .catch(function(error) {
+          console.log(error);
+          _this.$notify({
+            type: "warning",
+            message: "上传失败!",
+            offset: 160
+          });
+        });
+        setTimeout(() => {
+        _this.scrollBottom();
+      }, 500);
+    },
+  shanchu(){
+     let file= document.getElementById("saveImage");
+         file.value="";
+         this.isPng = true;
+          _this.isPhoto=false;
+  }
   }
 };
 </script>

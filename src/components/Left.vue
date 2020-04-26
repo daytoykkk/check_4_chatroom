@@ -79,6 +79,7 @@
 <script type="text/javascript">
 import Msg from "./Msg.js";
 export default {
+  inject: ['reload'],
   data() {
     return {
       isone: false,
@@ -132,6 +133,7 @@ export default {
     toRoom(list){ //跳转到对应房间
       localStorage.setItem("roomid",list.roomid);
       this.roomid=list.roomid;
+      this.reload();
       this.menu2();
     }
   }
