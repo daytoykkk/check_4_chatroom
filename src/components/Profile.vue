@@ -2,7 +2,7 @@
   <div class="mainProfile">
     <!--菜单点出来的个人信息Profile-->
     <div id="Profile">
-      <h3>
+      <h3 style="margin-left:5%;">
         <strong>Profile</strong>
       </h3>
 
@@ -98,7 +98,7 @@
             <h4 class="modal-title" id="myModalLabel">注册用户</h4>
           </div>
 
-          <el-input id="input-box" @blur="isProLen()" v-model="name" placeholder="请输入用户名进入聊天室"></el-input>
+          <el-input id="input-box" v-model="name" placeholder="请输入用户名进入聊天室"></el-input>
           <span v-if="isLen" style="color:red">
             <i class="el-icon-warning-outline"></i> 长度在2~10之间
           </span>
@@ -229,7 +229,7 @@ export default {
       time: "",
       imageSave: "",
       isShow: true,
-      isError: false,
+      isError: false,   //用户名是否存在
       isLen: false
     };
   },
@@ -240,6 +240,27 @@ export default {
   },
   created() {
     this.currentTime();
+  },
+  watch:{
+    name:function(){  //监听用户名是否已经存在,1存在
+    if (this.name.length < 2 || this.name.length > 10) {
+        this.isLen = true;
+      } else {
+        this.isLen = false;
+      }
+      this.$axios.get('/api/user/',{params:{username:this.name}})
+      .then(res=>{
+        console.log(res.data);
+        if(res.data==1){
+          this.isError=true;
+        }else{
+          this.isError=false;
+        }
+      })
+      .catch(error=>{
+        console.log(error);
+      })
+    }
   },
   methods: {
     saveMsg() {
@@ -293,6 +314,7 @@ export default {
         })
         .catch(error => {
           _this.isError = true;
+          console.log(error);
         });
     },
     loadMsg() {
@@ -342,12 +364,12 @@ export default {
       _token = _token.replace('"', "").replace('"', "");
       let _id = localStorage.getItem("id");
       let x = document.getElementById("saveImage").files[0];
-      console.log(x);
+      
       let icon = new FormData();
 
       icon.append("icon", x, x.name);
       icon.append("token", _token);
-      console.log(icon.get("file"));
+     
       let config = {
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
       };
@@ -384,14 +406,6 @@ export default {
         document.getElementById("chuxian").click();
       } else {
         this.loadMsg();
-      }
-    },
-    isProLen() {
-      if (this.name.length < 2 || this.name.length > 10) {
-        this.isLen = true;
-        this.name = "";
-      } else {
-        this.isLen = false;
       }
     },
     close() {

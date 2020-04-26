@@ -65,7 +65,7 @@
 .list-msg-box p {
   font-style: normal;
   font-size: 1.2em;
-  margin-left: -1em;
+  margin-left: 1em;
   cursor: pointer;
 }
 .list-msg-box span {

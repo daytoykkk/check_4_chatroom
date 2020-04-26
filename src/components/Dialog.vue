@@ -5,7 +5,7 @@
       <div id="daoSelf">
         <img :src="grouptx" />
         <div style="margin-left: 1em;">
-          <h5>{{groupname}}</h5>
+          <h5>{{groupname}}<p style="color:#8e8e8e;float:right;font-size:1em;margin-left:0.5em;"> 聊天室人数:{{count}}</p></h5>
           <p>{{groupdes}}</p>
         </div>
       </div>
@@ -38,8 +38,8 @@
             Mute
             <span class="el-icon-s-operation" style="transform:rotate(-90deg);"></span>
           </li>
-          <li>
-            Delet
+          <li title="退出房间" @click="open()">
+             <el-button type="text" style="color:#8f909b;">Delete</el-button>
             <span class="el-icon-delete"></span>
           </li>
         </ul>
@@ -61,7 +61,7 @@
         </div>
       </div>
 
-      <header>聊天室人数:{{count}}</header>
+      
       <div class="msg" v-for="(i,index) in list" :key="index">
         <!--上下线通知-->
         <div class="updown" v-if="i.user_id==-1">
@@ -76,21 +76,30 @@
             <p>{{i.time.substr(11,5)}}</p>
           </div>
           <div class="left-msg" v-if="i.type==1">
-            <textarea autoHeight="true" cols="30" rows="1" v-model="i.msg" readonly></textarea>
+            <p style="margin-bottom:-0.1em;">{{i.from_user}}</p>
+            <textarea autoHeight="true" cols="30" v-model="i.msg" readonly></textarea>
           </div>
-          <div class="left-img" v-else-if="i.type==2">
+         <div v-else-if="i.type==2">
+            <p style="margin-bottom:-0.1em;margin-left:0.9em;">{{i.from_user}}</p>
+            <div class="left-img">
             <img :src="i.msg" />
           </div>
+         </div>
         </div>
 
         <!--右边-->
         <div class="user-msg-right" v-else>
           <div class="right-msg" v-if="i.type==1">
+            <p style="margin-bottom:-0.1em;float:right;margin-right:1em;">{{i.from_user}}</p><br>
             <textarea autoHeight="true" cols="30" v-model="i.msg" readonly></textarea>
           </div>
-          <div class="right-img" v-else-if="i.type==2">
+
+         <div v-else-if="i.type==2">
+            <p style="margin-bottom:-0.1em;float:right;margin-right:0.8em;">{{i.from_user}}</p><br>
+            <div class="right-img">
             <img :src="i.msg" />
           </div>
+         </div>
           <div class="left-tx">
             <img :src="i.user_icon" />
             <p>{{i.time.substr(11,5)}}</p>
@@ -153,7 +162,8 @@
   padding: 0.5em;
 }
 .left-msg textarea {
-  background-color: #53a8ff;
+   font-size: 1.2em;
+  background-color: rgb(238, 238, 238);
   border: none;
   resize: none;
   border-radius: 0.5em;
@@ -166,7 +176,7 @@
   background-color: rgb(238, 238, 238);
   border-radius: 0.5em;
   padding: 0.5em;
-  margin-left: 1em;
+  margin-left: 0.7em;
 }
 .left-img img {
   height: 8em;
@@ -191,7 +201,7 @@
   background-color: rgb(238, 238, 238);
   border-radius: 0.5em;
   padding: 0.5em;
-  margin-right: 1em;
+  margin-right: 0.7em;
 }
 .right-img img {
   height: 8em;
@@ -210,9 +220,7 @@
   height: 52em;
   background-color: #ffffff;
 }
-p {
-  cursor: pointer;
-}
+
 #daohang {
   height: 8%;
   border-bottom: 1px solid rgb(247, 247, 247);
@@ -319,11 +327,8 @@ export default {
       groupdes: ""
     };
   },
-  created() {
-    this.getUserID();
-  },
   mounted() {
-    this.getRandT();
+    this.getRandTandU();
     this.getMsg();
     this.initWebSocket();
   },
@@ -343,12 +348,6 @@ export default {
     scrollBottom: function() {
       let el = this.$refs["chatShow"];
       el.scrollTop = el.scrollHeight;
-    },
-    getUserID: function() {
-      this.userId = 1;
-      this.token = "cffd35e72dab49d9bc264d1830be12d9";
-      localStorage.setItem("id", this.userId);
-      localStorage.setItem("token", this.token);
     },
     sendText: function() {
       let _this = this;
@@ -395,7 +394,7 @@ export default {
       };
       ws.onmessage = function(e) {
         let res = eval("(" + e.data + ")");
-        console.log(res);
+        
         if (res.type == 0 && res.roomid == _this.roomid) {
           _this.list.push({
             user_id: -1,
@@ -415,8 +414,9 @@ export default {
         }
       };
     },
-    getRandT() {
+    getRandTandU() {
       let _this = this;
+       _this.userId = localStorage.getItem("id");
       _this.roomid = localStorage.getItem("roomid");
       _this.token = localStorage.getItem("token");
     },
@@ -432,6 +432,7 @@ export default {
               "http://39.106.119.191/uploads/usericons/" +
               this.list[i].user_icon;
           }
+          
         })
         .catch(error => {
           console.log(error);
@@ -446,11 +447,35 @@ export default {
           this.groupname = data.name;
           this.groupdes = data.detail;
           this.grouptx = "http://39.106.119.191/uploads/rooms/" + data.icon;
+          localStorage.setItem("grouptx",this.grouptx);
+          localStorage.setItem("url",data.url);
         });
         setTimeout(() => {
         this.scrollBottom();
       }, 500);
-    }
+    },
+     open() {
+        this.$confirm('是否退出房间', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+           let _token = localStorage.getItem("token");
+      _token = _token.replace('"', "").replace('"', "");
+            this.$axios.delete('/api/room/',{params:{token:_token,roomid:this.roomid}})
+            .then(res=>{
+                this.reload();
+            })
+            .catch(error=>{
+              console.log(error);
+            })
+         
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消退出'
+          });          
+        });}
   }
 };
 </script>
