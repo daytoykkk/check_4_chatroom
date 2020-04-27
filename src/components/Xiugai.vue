@@ -156,6 +156,7 @@
 <script type="text/javascript">
 import Msg from "./Msg.js";
 export default {
+   inject: ['reload'],
   data() {
     return {
       groupname: "",
@@ -166,7 +167,7 @@ export default {
       isMaxName: false,
       isMaxDes: false,
       isShow: true,
-      roomid:1
+      roomid:""
     };
   },
   mounted() {
@@ -191,12 +192,14 @@ export default {
         .then(rsp => {
            let data = JSON.parse(JSON.stringify(rsp.data)).data;
           localStorage.setItem("group", JSON.stringify(Group));
+          _this.reload();
         })
         .catch(error => {
           console.log(error);
         });
     },
     loadMsg() {
+      this.roomid=localStorage.getItem("roomid");
       this.$axios
         .get("/api/room/info/",{
           params:{roomid:this.roomid}

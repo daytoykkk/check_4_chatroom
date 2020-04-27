@@ -396,7 +396,7 @@ export default {
       console.log(params);
       setTimeout(() => {
         _this.scrollBottom();
-      }, 500);
+      }, 100);
     },
     initWebSocket: function() {
       let _this = this;
@@ -420,12 +420,13 @@ export default {
         ws.send(JSON.stringify(send_msg));
       };
       ws.onerror = function() {
-        console.log("服务器连接出错");
+       this.reload();
       };
       ws.onmessage = function(e) {
         let res = eval("(" + e.data + ")");
         
         if (res.type == 0 && res.roomid == _this.roomid) {
+          _this.count=res.num;
           _this.list.push({
             user_id: -1,
             username: res.username,
@@ -442,6 +443,9 @@ export default {
             roomid: res.roomid
           });
         }
+         setTimeout(() => {
+        _this.scrollBottom();
+      }, 100);
       };
     },
     getRandTandU() {
@@ -449,6 +453,7 @@ export default {
        _this.userId = localStorage.getItem("id");
       _this.roomid = localStorage.getItem("roomid");
       _this.token = localStorage.getItem("token");
+       _this.token = _this.token.replace('"', "").replace('"', "");
     },
     getMsg() {
       this.$axios

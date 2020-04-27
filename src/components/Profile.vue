@@ -230,7 +230,8 @@ export default {
       imageSave: "",
       isShow: true,
       isError: false,   //用户名是否存在
-      isLen: false
+      isLen: false,
+      isPhoto:false
     };
   },
   mounted() {
@@ -309,7 +310,7 @@ export default {
           let datatoken = data.token;
           let id = data.id;
           localStorage.setItem("msg", JSON.stringify(MSG));
-          localStorage.setItem("token", JSON.stringify(datatoken));
+          localStorage.setItem("token", datatoken);
           localStorage.setItem("id", JSON.stringify(id));
         })
         .catch(error => {
@@ -350,6 +351,7 @@ export default {
         let imgFile = this.files[0];
         if (imgFile) {
           _this.isShow = false;
+          _this.isPhoto=true;
         }
         let fr = new FileReader();
         fr.onload = function() {
@@ -360,6 +362,9 @@ export default {
     },
     imgSubmit() {
       let _this = this;
+      if(_this.isPhoto==false){
+        return;
+      }
       let _token = localStorage.getItem("token");
       _token = _token.replace('"', "").replace('"', "");
       let _id = localStorage.getItem("id");

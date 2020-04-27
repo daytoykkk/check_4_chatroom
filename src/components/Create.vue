@@ -117,7 +117,8 @@ export default {
       isShow: true,
       centerDialogVisible:false,
       roomid:"",
-      groupurl:""
+      groupurl:"",
+      isPhoto:false
     };
   },
   mounted() {
@@ -126,31 +127,33 @@ export default {
   methods: {
     createGroup() {
       let _this = this;
-      if(isMaxName==true||isMaxDes==true){
+      if(this.isMaxName==true||this.isMaxDes==true){
         alert("群名或群描述不符合！");
         return ;
       }
-      let Group = { name: this.groupName, detail: this.des };
-      console.log(Group.groupName);
+      _this.centerDialogVisible=false;
       let token1 = localStorage.getItem("token");
       token1 = token1.replace('"', "").replace('"', "");
+     // let to="0da83232e5c449fb8700eebae2a8449d";
+      let create=new FormData();
+      create.append("name",this.groupName);
+      create.append("token",token1);
+      create.append("action","register");
+      create.append("detail",this.des);
       this.$axios
-        .post("/api/room/", {
-          name: this.groupName,
-          detail: this.des,
-          token: token1,
-          action: "register"
-        })
+        .post("/api/room/", create)
         .then(rsp => {
           let data = JSON.parse(JSON.stringify(rsp.data)).data;
           let newurl = data.url;
-          let _roomid=data.roomid;
-         this.groupurl=newurl;
+          _this.roomid=data.roomid;
+         _this.groupurl=newurl;
           localStorage.setItem("url", newurl);
-          localStorage.setItem("roomid",_roomid);
-          this.centerDialogVisible=true;
+          localStorage.setItem("roomid",this.roomid);
+        _this.centerDialogVisible=true;
         })
-        .catch(error => {});
+        .catch(error => {
+          console.log(error);
+        });
     },
     nameMax(str, len) {
       let temp = 0;
@@ -191,6 +194,7 @@ export default {
         let imgFile = this.files[0];
         if (imgFile) {
           _this.isShow = false;
+          _this.isPhoto=true;
         }
         let fr = new FileReader();
         fr.onload = function() {
@@ -200,6 +204,9 @@ export default {
       };
     },
     imgSubmit() {
+      if(this.isPhoto==false){
+        return;
+      }
       let _this = this;
       let _token = localStorage.getItem("token");
       _token = _token.replace('"', "").replace('"', "");
