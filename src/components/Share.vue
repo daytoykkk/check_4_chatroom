@@ -10,7 +10,7 @@
           <img id="group-tx" :src="grouptx" />
         </div>
         <div style="margin-left: 5%;">
-          <h3>Documentation</h3>
+          <h3>{{groupname}}</h3>
           <el-button type="text" style="color:#90919c" @click="centerDialogVisible = true">
             分享群聊
             <img src="../assets/link.png" style="width:1em;height:1em;" />
@@ -25,7 +25,7 @@
       </div>
 
       <div id="shuoming">
-        <center>blablablablabla</center>
+        <center>{{groupdes}}</center>
       </div>
     </div>
 
@@ -137,18 +137,32 @@ export default {
       grouptx: "",
       centerDialogVisible: false,
       groupurl:"",
-      roomid:""
+      roomid:"",
+      groupname:"",
+  groupdes:""
     };
   },
   mounted() {
-    this.grouptx = localStorage.getItem("grouptx");
     this.groupurl=localStorage.getItem("url");
     this.roomid=localStorage.getItem("roomid");
+    this.loadMsg();
   },
   methods: {
     close: function() {
       Msg.$emit("obj", "0");
-    }
+    }, 
+    loadMsg() {
+      this.$axios
+        .get("/api/room/info/",{
+          params:{roomid:this.roomid}
+        })
+        .then(res=>{
+          let data=res.data.data;
+          this.groupname=data.name;
+          this.groupdes=data.detail;
+          this.grouptx="http://39.106.119.191/uploads/rooms/"+data.icon;
+        })
+    },
   }
 };
 </script>

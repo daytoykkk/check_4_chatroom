@@ -319,6 +319,7 @@ export default {
         });
     },
     loadMsg() {
+      console.log("加载");
       let MSG = JSON.parse(localStorage.getItem("msg"));
       this.name = MSG.name;
       this.phone = MSG.phone;

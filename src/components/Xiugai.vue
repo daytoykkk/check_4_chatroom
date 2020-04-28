@@ -97,7 +97,7 @@
            @input="desMax($event.target,50)"
         ></textarea>
       </div>
-      <button type="button" @click="saveMsg();imgSubmit();" class="btn btn-primary btn-lg btn-block">确认保存</button>
+      <button type="button" @click="saveMsg();imgSubmit()" class="btn btn-primary btn-lg btn-block">确认保存</button>
     </div>
   </div>
 </template>
@@ -167,7 +167,8 @@ export default {
       isMaxName: false,
       isMaxDes: false,
       isShow: true,
-      roomid:""
+      roomid:"",
+      isPhoto:false
     };
   },
   mounted() {
@@ -177,21 +178,18 @@ export default {
   methods: {
     saveMsg() {
       let _this = this;
-      let Group = { name: this.groupName, detail: this.des };
-      let _roomid=localStorage.getItem("roomid");
+    
       let token1 = localStorage.getItem("token");
       token1 = token1.replace('"', "").replace('"', "");
+      let msg=new FormData();
+      msg.append("token",token1);
+      msg.append("roomid",_this.roomid);
+      msg.append("name",_this.groupname);
+      msg.append("detail",_this.groupdes);
+  
       this.$axios
-        .patch("/api/room/", {
-          name: this.groupName,
-          detail: this.des,
-          token: token1,
-          action: "register",
-          roomid:_roomid
-        })
+        .patch("/api/room/", msg)
         .then(rsp => {
-           let data = JSON.parse(JSON.stringify(rsp.data)).data;
-          localStorage.setItem("group", JSON.stringify(Group));
           _this.reload();
         })
         .catch(error => {
@@ -253,6 +251,7 @@ export default {
         let imgFile = this.files[0];
         if (imgFile) {
           _this.isShow = false;
+          _this.isPhoto=true;
         }
         let fr = new FileReader();
         fr.onload = function() {
@@ -263,15 +262,17 @@ export default {
     },
     imgSubmit() {
      let _this = this;
+     if(_this.isPhoto==false){
+       return;
+     }
       let _token = localStorage.getItem("token");
       _token = _token.replace('"', "").replace('"', "");
-      let _roomid=localStorage.getItem("roomid");
+     
       let x = document.getElementById("saveImage").files[0];
       let icon = new FormData();
       icon.append("icon", x, x.name);
       icon.append("token", _token);
-      icon.append("action", "register");
-      icon.append("roomid",_roomid);
+      icon.append("roomid",this.roomid);
       let config = {
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
       };

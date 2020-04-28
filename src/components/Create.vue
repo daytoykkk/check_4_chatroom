@@ -88,7 +88,7 @@
     <br />
     <center>
       <button
-        @click="createGroup();imgSubmit()"
+        @click="createGroup()"
         type="button"
         class="btn btn-primary btn-lg"
       >Create group</button>
@@ -134,15 +134,21 @@ export default {
       _this.centerDialogVisible=false;
       let token1 = localStorage.getItem("token");
       token1 = token1.replace('"', "").replace('"', "");
-     // let to="0da83232e5c449fb8700eebae2a8449d";
+ let x = document.getElementById("saveImage").files[0];
+     
       let create=new FormData();
+       create.append("icon", x, x.name);
       create.append("name",this.groupName);
       create.append("token",token1);
       create.append("action","register");
       create.append("detail",this.des);
+       let config = {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      };
       this.$axios
-        .post("/api/room/", create)
+        .post("/api/room/", create,config)
         .then(rsp => {
+           let roomicons = "http://39.106.119.191/uploads/rooms/";
           let data = JSON.parse(JSON.stringify(rsp.data)).data;
           let newurl = data.url;
           _this.roomid=data.roomid;
@@ -150,6 +156,8 @@ export default {
           localStorage.setItem("url", newurl);
           localStorage.setItem("roomid",this.roomid);
         _this.centerDialogVisible=true;
+          _this.imageSave = roomicons + data.icon;
+          localStorage.setItem("gruopicon", _this.imageSave);
         })
         .catch(error => {
           console.log(error);
@@ -203,10 +211,9 @@ export default {
         fr.readAsDataURL(imgFile);
       };
     },
-    imgSubmit() {
-      if(this.isPhoto==false){
-        return;
-      }
+   /* imgSubmit() {
+      console.log(this.isPhoto);
+     
       let _this = this;
       let _token = localStorage.getItem("token");
       _token = _token.replace('"', "").replace('"', "");
@@ -240,7 +247,7 @@ export default {
             offset: 160
           });
         });
-    }
+    }*/
   }
 };
 </script>
