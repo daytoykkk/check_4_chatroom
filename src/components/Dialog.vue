@@ -129,25 +129,32 @@
             @click="shanchu()"
           />
         </div>
+
         <textarea
+          style="position:relative;z-index:100;width:98%"
           ref="sendMsg"
           v-model="contentText"
           @keyup.enter="sendText()"
-          cols="140"
+          cols="123"
           rows="4"
           placeholder="Type your message..."
           v-if="isPng"
         ></textarea>
       </div>
-      <a href="#">
-        <img src="../assets/biaoqing.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
-      </a>
+      <VueEmoji
+        width="100"
+        height="20"
+        style="position:absolute;z-index:80;margin-left:71.3%;margin-top:4.2%;"
+        @input="onInput"
+        v-if="isPng"
+        v-model="contentText"
+      />
       <a href="#" @click="moni()">
-        <img src="../assets/link1.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
+        <img src="../assets/link1.png" style="margin-top:10%;width:1.2em;height:1.2em;" />
       </a>
 
       <a href="#" @click="sendText();imgSubmit()">
-        <img src="../assets/send.png" style="margin-top:0.5em;width:1.2em;height:1.2em;" />
+        <img src="../assets/send.png" style="margin-top:10%;width:1.2em;height:1.2em;" />
       </a>
     </div>
   </div>
@@ -210,8 +217,9 @@
   padding: 0.5em;
 }
 .rrr {
+  color: white;
   font-size: 1.2em;
-  background-color: #53a8ff;
+  background-color: #2683f5;
   border: none;
   resize: none;
   border-radius: 0.5em;
@@ -226,7 +234,7 @@
   max-width: 20em;
 }
 .right-img {
-  background-color: #53a8ff;
+  background-color: #2683f5;
   border-radius: 0.5em;
   padding: 0.5em;
   margin-right: 0.7em;
@@ -339,6 +347,7 @@
 
 <script type="text/javascript">
 import Msg from "./Msg.js";
+import VueEmoji from "../../node_modules/emoji-vue/src/VueEmoji";
 export default {
   inject: ["reload"],
   data() {
@@ -359,6 +368,9 @@ export default {
       isPhoto: false, //是否要发图片
       info: ""
     };
+  },
+  components: {
+    VueEmoji
   },
   mounted() {
     let _this = this;
@@ -397,8 +409,8 @@ export default {
             console.log(error);
           });
         setTimeout(() => {
-        _this.scrollBottom();
-      }, 100);
+          _this.scrollBottom();
+        }, 100);
       } else {
         let el = this.$refs["chatShow"];
         el.scrollTop = 0;
@@ -635,6 +647,9 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    onInput(event) {
+      this.contentText = event.data;
     }
   }
 };
