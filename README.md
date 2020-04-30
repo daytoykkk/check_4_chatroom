@@ -41,4 +41,5 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 2. 设置房间头像、简介  
 3. 对聊天记录进行搜索  
 4. 发送表情  
-5. 发送图片
+5. 发送图片  
+1. delete退出群聊
